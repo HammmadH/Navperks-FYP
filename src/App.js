@@ -13,6 +13,14 @@ function FirstComponent() {
   );
 }
 
+function FirstComponent() {
+  return (
+    <div className='w-full h-screen flex justify-center items-center'>
+      <img src={Logo} alt='logo' />
+    </div>
+  );
+}
+
 function SecondComponent({ onContinue }) {
   const [isChecked, setIsChecked] = useState(false);
 
@@ -279,5 +287,7 @@ function App() {
     </div>
   );
 }
+
+
 
 export default App;
