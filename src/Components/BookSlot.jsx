@@ -134,7 +134,7 @@ export default function BookSlot({ onHomeClick }) {
 
   return (
     <div
-      className="bg-gray-100 p-5"
+      className="bg-gray-100 p-5 mb-10"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
     >
@@ -155,21 +155,22 @@ export default function BookSlot({ onHomeClick }) {
 
       {/* Floor Slider */}
       <div
-        className="floor-slider mt-2 flex overflow-x-auto p-2 space-x-4 scrollbar-hide"
-        onScroll={handleScroll} // Adding scroll event listener
-      >
-        {mySlots.map((floor, index) => (
-          <button
-            key={index}
-            onClick={() => setSelectedFloor(index)}
-            className={`min-w-[100px] py-3 px-7 text-lg font-semibold rounded ${
-              selectedFloor === index ? "bg-blue-500" : "bg-gray-300"
-            } text-white flex-shrink-0`}
-          >
-            {floor.floor}
-          </button>
-        ))}
-      </div>
+  className="floor-slider mt-2 flex p-2 justify-between"
+  onScroll={handleScroll} // You can remove this if you don’t need scroll handling
+>
+  {mySlots.map((floor, index) => (
+    <button
+      key={index}
+      onClick={() => setSelectedFloor(index)}
+      className={`flex-1 py-3 px-6 text-base font-semibold rounded ${
+        selectedFloor === index ? "bg-blue-500" : "bg-gray-300"
+      } text-white mx-2`} // Added margin for spacing between buttons
+    >
+      {floor.floor}
+    </button>
+  ))}
+</div>
+
 
       {/* Selected Floor Title */}
       {mySlots.length > 0 && (
@@ -179,12 +180,12 @@ export default function BookSlot({ onHomeClick }) {
       )}
 
       {/* Slot Container */}
-      <div className="slot-container grid grid-cols-3 gap-4">
+      <div className="slot-container grid grid-cols-2 gap-4 overflow-y-scroll">
         {mySlots[selectedFloor]?.slots.map((slot) => (
           <div
             key={slot.id}
             onClick={() => handleSlotClick(slot)}
-            className={`h-36 flex items-center justify-center rounded-lg border border-gray-500 ${
+            className={`h-52 flex items-center justify-center rounded-lg border border-gray-500 ${
               slot.reserved ? "bg-red-500" : "bg-gray-300"
             } cursor-pointer relative`}
           >
