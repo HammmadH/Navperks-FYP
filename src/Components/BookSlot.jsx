@@ -1,12 +1,18 @@
-import { useEffect, useState } from "react";
-import car from "../assets/car.jpg";
-import { IoHomeOutline } from "react-icons/io5";
+import React, { useEffect, useState } from "react";
+
 import Swal from "sweetalert2";
+import { FaArrowDownLong, FaArrowUpLong } from "react-icons/fa6";
 
 export default function BookSlot({ onHomeClick }) {
   const [mySlots, setMySlots] = useState([]);
   const [selectedFloor, setSelectedFloor] = useState(0);
   const [touchStartX, setTouchStartX] = useState(0);
+  const [previousSelectedFloor, setPreviousSelectedFloor] = useState(0); // Track previous selection
+
+  useEffect(() => {
+    // Store the previous floor when selectedFloor changes
+    setPreviousSelectedFloor(selectedFloor);
+  }, [selectedFloor]);
 
   useEffect(() => {
     // Retrieve slots from local storage or initialize
@@ -19,9 +25,9 @@ export default function BookSlot({ onHomeClick }) {
             { id: "F1-S1", reserved: true },
             { id: "F1-S2", reserved: true },
             { id: "F1-S3", reserved: true },
-            { id: "F1-S4", reserved: false },
-            { id: "F1-S5", reserved: false },
-            { id: "F1-S6", reserved: false },
+            { id: "F1-S4", reserved: true },
+            { id: "F1-S5", reserved: true },
+            { id: "F1-S6", reserved: true },
           ],
         },
         {
@@ -51,6 +57,7 @@ export default function BookSlot({ onHomeClick }) {
     }
     setMySlots(slots);
   }, []);
+
   const handleSlotClick = (slot) => {
     const bookedSlot = localStorage.getItem("bookedSlot");
     if (bookedSlot) {
@@ -105,101 +112,65 @@ export default function BookSlot({ onHomeClick }) {
     });
   };
 
- 
-
-  const handleScroll = (e) => {
-    const scrollLeft = e.target.scrollLeft;
-    const floorWidth = e.target.clientWidth; // width of the container
-    const floorIndex = Math.floor(scrollLeft / floorWidth); // calculate the index based on scroll position
-
-    if (floorIndex !== selectedFloor) {
-      setSelectedFloor(floorIndex);
-    }
-  };
-
-  const handleTouchStart = (e) => {
-    setTouchStartX(e.touches[0].clientX); // store the initial touch position
-  };
-
-  const handleTouchMove = (e) => {
-    const touchEndX = e.touches[0].clientX;
-    const touchDelta = touchEndX - touchStartX;
-
-    if (touchDelta > 50 && selectedFloor > 0) {
-      setSelectedFloor((prev) => prev - 1); // swipe right, go to the previous floor
-    } else if (touchDelta < -50 && selectedFloor < mySlots.length - 1) {
-      setSelectedFloor((prev) => prev + 1); // swipe left, go to the next floor
-    }
-  };
-
   return (
-    <div
-      className="bg-gray-100 p-5"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-    >
-      {/* Home Button */}
-      <div
-        onClick={onHomeClick}
-        className="flex py-4 px-3 items-center justify-evenly bg-black cursor-pointer rounded"
-      >
-        <IoHomeOutline
-          color="#17502d"
-          className="rounded-full p-3 bg-white"
-          size={45}
-        />
-        <div className="ml-2 font-extrabold text-xl text-white">
-          BOOK PARKING SLOT
-        </div>
-      </div>
-
-      {/* Floor Slider */}
-      <div
-        className="floor-slider mt-2 flex overflow-x-auto p-2 space-x-4 scrollbar-hide"
-        onScroll={handleScroll} // Adding scroll event listener
-      >
-        {mySlots.map((floor, index) => (
-          <button
-            key={index}
-            onClick={() => setSelectedFloor(index)}
-            className={`min-w-[100px] py-3 px-7 text-lg font-semibold rounded ${
-              selectedFloor === index ? "bg-blue-500" : "bg-gray-300"
-            } text-white flex-shrink-0`}
-          >
-            {floor.floor}
-          </button>
-        ))}
-      </div>
-
-      {/* Selected Floor Title */}
-      {mySlots.length > 0 && (
-        <h2 className="mb-3 text-2xl font-bold text-center">
-          {mySlots[selectedFloor]?.floor.toUpperCase()} SLOTS
-        </h2>
-      )}
-
-      {/* Slot Container */}
-      <div className="slot-container grid grid-cols-3 gap-4">
-        {mySlots[selectedFloor]?.slots.map((slot) => (
-          <div
-            key={slot.id}
-            onClick={() => handleSlotClick(slot)}
-            className={`h-36 flex items-center justify-center rounded-lg border border-gray-500 ${
-              slot.reserved ? "bg-red-500" : "bg-gray-300"
-            } cursor-pointer relative`}
-          >
-            {slot.reserved ? (
-              <img
-                src={car}
-                alt="car"
-                className="absolute inset-0 w-full h-full rounded-lg"
-              />
-            ) : (
-              <span className="text-black font-semibold">{slot.id}</span>
-            )}
+    <div className="bg-white  pb-32 scrollbar-hide md:scrollbar-default">
+      <div className="bg-slate-100 shadow-2xl">
+        {/* Home Button */}
+        <div className="flex py-4 px-3 items-center justify-center cursor-pointer rounded">
+          <div className="text-[#2cc40d] ml-2 font-extrabold text-2xl">
+            BOOK PARKING SLOT
           </div>
-        ))}
+        </div>
+
+        {/* Floor Slider */}
+        <FloorSlider mySlots={mySlots} />
       </div>
+      {/* Slot Container */}
     </div>
   );
 }
+
+const FloorSlider = ({ mySlots }) => {
+  const [selectedFloor, setSelectedFloor] = useState(0);
+  const [tabWidth, setTabWidth] = useState(0);
+  const [tabPosition, setTabPosition] = useState(0);
+
+  // Handle floor selection click
+  const handleFloorClick = (index) => {
+    setSelectedFloor(index);
+  };
+
+  useEffect(() => {
+    // Calculate width and position of the active floor tab dynamically
+    const activeTabElement = document.getElementById(`floor-${selectedFloor}`);
+    if (activeTabElement) {
+      setTabWidth(activeTabElement.offsetWidth);
+      setTabPosition(activeTabElement.offsetLeft);
+    }
+  }, [selectedFloor]);
+
+  return (
+    <div className="floor-slider justify-around w-full flex mb-5 relative">
+      {/* Tab options - Floor buttons */}
+      {mySlots.map((floor, index) => (
+        <div
+          key={index}
+          id={`floor-${index}`}
+          onClick={() => handleFloorClick(index)}
+          className={`flex py-3 px-2 cursor-pointer items-center justify-center text-base font-semibold relative`}
+        >
+          <span>{floor.floor}</span>
+        </div>
+      ))}
+
+      {/* Sliding Green Border */}
+      <div
+        className="absolute bottom-0 h-1 bg-[#17502d] transition-all duration-300 ease-in-out"
+        style={{
+          left: `${tabPosition}px`, // Position of the active floor
+          width: `${tabWidth}px`, // Width of the active floor tab
+        }}
+      />
+    </div>
+  );
+};
