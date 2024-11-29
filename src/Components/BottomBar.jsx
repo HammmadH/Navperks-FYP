@@ -60,3 +60,4 @@ const BottomBar = ({ activeTab, onSelect }) => {
 };
 
 export default BottomBar;
+
