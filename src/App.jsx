@@ -15,14 +15,18 @@ function App() {
   const [lastScrollY, setLastScrollY] = useState(0); // Track last scroll position
 
   useEffect(() => {
-    const userAgreed = localStorage.getItem('userAgreement') === 'true';
-    const timer = setTimeout(() => {
-      if (userAgreed) {
-        setStep(3);
-      } else {
-        setStep(2); 
-      }
-    }, 3000);
+    const userAgreed = localStorage.getItem('userAgreement') === 'true'; // Check if user has agreed
+
+    if (userAgreed) {
+      setStep(3); // Directly show MainComponent if user agreed
+    } else {
+      // Wait 3 seconds before showing user agreement
+      const timer = setTimeout(() => {
+        setStep(2); // Show user agreement step
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
 
     // Hide bottom bar on scroll when on MainComponent
     const handleScroll = () => {
@@ -39,7 +43,6 @@ function App() {
     window.addEventListener("scroll", handleScroll);
 
     return () => {
-      clearTimeout(timer);
       window.removeEventListener("scroll", handleScroll);
     };
   }, [lastScrollY, selectedComponent]);
@@ -60,12 +63,16 @@ function App() {
   const renderComponent = () => {
     switch (selectedComponent) {
       case 'home':
+        console.log("main");
         return <MainComponent onSelect={handleSelectComponent} />;
       case 'bookSlot':
+        console.log("book")
         return <BookSlot onHomeClick={handleHomeClick} />;
       case 'yourSlot':
+        console.log("slot")
         return <NavigateSlot onHomeClick={handleHomeClick} />;
       case 'kiet':
+        console.log("kiet")
         return <NavigateKiet onHomeClick={handleHomeClick} />;
       default:
         return <MainComponent onSelect={handleSelectComponent} />;
@@ -73,7 +80,7 @@ function App() {
   };
 
   return (
-    <div>
+    <div className='h-full overflow-none'>
       {step === 1 && <FirstComponent />}
       {step === 2 && <SecondComponent onContinue={handleContinue} />}
       {step === 3 && renderComponent()}

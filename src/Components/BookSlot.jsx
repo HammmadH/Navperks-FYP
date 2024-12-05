@@ -1,21 +1,13 @@
 import React, { useEffect, useState } from "react";
-
 import Swal from "sweetalert2";
-import { FaArrowDownLong, FaArrowUpLong } from "react-icons/fa6";
+import Car from "../assets/car.png"
 
 export default function BookSlot({ onHomeClick }) {
   const [mySlots, setMySlots] = useState([]);
   const [selectedFloor, setSelectedFloor] = useState(0);
-  const [touchStartX, setTouchStartX] = useState(0);
-  const [previousSelectedFloor, setPreviousSelectedFloor] = useState(0); // Track previous selection
 
   useEffect(() => {
-    // Store the previous floor when selectedFloor changes
-    setPreviousSelectedFloor(selectedFloor);
-  }, [selectedFloor]);
-
-  useEffect(() => {
-    // Retrieve slots from local storage or initialize
+    // Retrieve slots from local storage or initialize them
     let slots = JSON.parse(localStorage.getItem("slots")) || [];
     if (slots.length === 0) {
       slots = [
@@ -23,33 +15,33 @@ export default function BookSlot({ onHomeClick }) {
           floor: "Floor 1",
           slots: [
             { id: "F1-S1", reserved: true },
-            { id: "F1-S2", reserved: true },
+            { id: "F1-S2", reserved: false },
             { id: "F1-S3", reserved: true },
-            { id: "F1-S4", reserved: true },
+            { id: "F1-S4", reserved: false },
             { id: "F1-S5", reserved: true },
-            { id: "F1-S6", reserved: true },
+            { id: "F1-S6", reserved: false },
           ],
         },
         {
           floor: "Floor 2",
           slots: [
-            { id: "F2-S1", reserved: true },
+            { id: "F2-S1", reserved: false },
             { id: "F2-S2", reserved: true },
-            { id: "F2-S3", reserved: true },
-            { id: "F2-S4", reserved: false },
-            { id: "F2-S5", reserved: true },
-            { id: "F2-S6", reserved: false },
+            { id: "F2-S3", reserved: false },
+            { id: "F2-S4", reserved: true },
+            { id: "F2-S5", reserved: false },
+            { id: "F2-S6", reserved: true },
           ],
         },
         {
           floor: "Floor 3",
           slots: [
-            { id: "F3-S1", reserved: false },
+            { id: "F3-S1", reserved: true },
             { id: "F3-S2", reserved: false },
-            { id: "F3-S3", reserved: true },
+            { id: "F3-S3", reserved: false },
             { id: "F3-S4", reserved: true },
             { id: "F3-S5", reserved: false },
-            { id: "F3-S6", reserved: false },
+            { id: "F3-S6", reserved: true },
           ],
         },
       ];
@@ -70,7 +62,6 @@ export default function BookSlot({ onHomeClick }) {
     }
 
     if (slot.reserved) {
-      // If the slot is reserved by another user
       Swal.fire({
         icon: "error",
         title: "Slot Already Reserved",
@@ -79,7 +70,6 @@ export default function BookSlot({ onHomeClick }) {
       return;
     }
 
-    // If the slot is not reserved, proceed with booking
     Swal.fire({
       title: `Reserve Slot ${slot.id}?`,
       text: "Do you want to confirm your reservation?",
@@ -90,7 +80,7 @@ export default function BookSlot({ onHomeClick }) {
       confirmButtonText: "Yes, Reserve it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        confirmReservation(slot); // Call reservation function
+        confirmReservation(slot);
       }
     });
   };
@@ -113,27 +103,158 @@ export default function BookSlot({ onHomeClick }) {
   };
 
   return (
-    <div className="bg-white  pb-32 scrollbar-hide md:scrollbar-default">
-      <div className="bg-slate-100 shadow-2xl">
-        {/* Home Button */}
-        <div className="flex py-4 px-3 items-center justify-center cursor-pointer rounded">
+    <div className="">
+      <div className="bg-slate-100 shadow-xl fixed z-20 w-full top-0">
+        {/* Header */}
+        <div className="flex py-4 px-3 items-center justify-center rounded">
           <div className="text-[#2cc40d] ml-2 font-extrabold text-2xl">
             BOOK PARKING SLOT
           </div>
         </div>
 
-        {/* Floor Slider */}
-        <FloorSlider mySlots={mySlots} />
+        {/* Floor Selector */}
+        <FloorSlider mySlots={mySlots} selectedFloor={selectedFloor} setSelectedFloor={setSelectedFloor} />
       </div>
-      {/* Slot Container */}
+      {/* slot container */}
+      <div className="grid mt-40 grid-cols-3 gap-4 px-4">
+        {/* Odd Slots */}
+        <div className="py-2 border-t  border-b border-l border-dotted border-gray-400">
+          {/* Empty Slot (Above Odd Slots) */}
+          <div className="relative h-14 mb-4 cursor-pointer ml-2 p-4 rounded-se-full  shadow bg-gray-100">
+          </div>
+
+          {/* Locked Slot (Above Odd Slots) */}
+          <div className="relative h-14 mb-4">
+            <div className="cursor-pointer ml-2 h-full p-4 rounded shadow bg-gray-200">
+              <div>Locked</div>
+            </div>
+          </div>
+
+          {/* Odd Slots with Divider Lines */}
+          {mySlots[selectedFloor]?.slots
+            ?.filter((_, index) => index % 2 === 0)
+            .map((slot, index) => (
+              <div key={slot.id} className="relative mb-4 h-14">
+                <div
+                  onClick={() => handleSlotClick(slot)}
+                  className={`cursor-pointer h-full ml-2 flex  rounded `}
+                >
+                  {slot.reserved ? <img src={Car} className="m-auto" /> : <div className="m-auto">Available</div>}
+                </div>
+                {/* Divider Line */}
+                <div className="absolute inset-x-0 -bottom-2 h-[1px] border-t border-dotted border-gray-400" />
+              </div>
+            ))}
+
+          {/* Locked Slot (Below Odd Slots) */}
+          <div className="relative h-14 mb-4">
+            <div className="cursor-pointer h-full ml-2 p-4 rounded shadow bg-gray-200">
+              <div>Locked</div>
+            </div>
+          </div>
+
+          {/* Empty Slot (Below Odd Slots) */}
+          <div className="relative h-14 cursor-pointer ml-2 p-4 rounded-ee-full shadow bg-gray-100">
+          </div>
+        </div>
+
+        {/* Spacer Column */}
+        <div className="flex flex-col gap-y-10  justify-between py-14 items-center h-full">
+          {/* Free Slots Information */}
+          <div className="flex flex-col justify-center items-center h-4/5  -rotate-90 p-4">
+            <div>
+              {(() => {
+                const freeSlotsCount = mySlots[selectedFloor]?.slots?.filter(
+                  (slot) => !slot.reserved
+                ).length;
+                return freeSlotsCount === 1 ? (
+                  <div className="flex gap-x-3 text-xl font-bold">
+                  <p className="">{freeSlotsCount}  </p>
+                  <p>Slot</p>
+                  <p>Free</p>
+                  </div>
+                ) : freeSlotsCount && freeSlotsCount > 0 ? (
+                  <div className="flex gap-x-3 text-xl font-bold">
+                  <p className="">{freeSlotsCount}  </p>
+                  <p>Slots</p>
+                  <p>Free</p>
+                  </div>
+                ) : (
+                  <div className="flex text-red-300 text-xl font-bold gap-x-3">
+                  <p className="">No  </p>
+                  <p>Slot</p>
+                  <p>Available</p>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+          <div className="rotate-90"><img src={Car} className="opacity-60"/></div>
+        </div>
+
+
+
+
+
+        {/* Even Slots */}
+        <div className="py-2 border-t border-b border-r border-dotted border-gray-400">
+          {/* Empty Slot (Above Even Slots) */}
+          <div className="relative h-14 mb-4 cursor-pointer p-4 rounded-ss-full shadow bg-gray-100">
+
+          </div>
+
+          {/* Locked Slot (Above Even Slots) */}
+          <div className="relative  h-14 mb-4">
+            <div className="cursor-pointer p-4 rounded shadow bg-gray-200">
+              <div>Locked</div>
+            </div>
+          </div>
+
+          {/* Even Slots with Divider Lines */}
+          {mySlots[selectedFloor]?.slots
+            ?.filter((_, index) => index % 2 !== 0)
+            .map((slot, index) => (
+              <div key={slot.id} className="relative mb-4 h-14">
+                <div
+                  onClick={() => handleSlotClick(slot)}
+                  className={`cursor-pointer h-full ml-2 flex  rounded `}
+                >
+                  {slot.reserved ? <img src={Car} className="m-auto" /> : <div className="m-auto">Available</div>}
+                </div>
+                {/* Divider Line */}
+                <div className="absolute inset-x-0 -bottom-2 h-[1px] border-t border-dotted border-gray-400" />
+              </div>
+            ))}
+
+          {/* Locked Slot (Below Even Slots) */}
+          <div className="relative mb-4">
+            <div className="cursor-pointer p-4 rounded h-full shadow bg-gray-200">
+              <div>Locked</div>
+            </div>
+          </div>
+
+          {/* Empty Slot (Below Even Slots) */}
+          <div className="relative cursor-pointer p-4 rounded-es-full h-14 shadow bg-gray-100">
+            <div className="">
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
     </div>
   );
 }
 
-const FloorSlider = ({ mySlots }) => {
-  const [selectedFloor, setSelectedFloor] = useState(0);
-  const [tabWidth, setTabWidth] = useState(0);
-  const [tabPosition, setTabPosition] = useState(0);
+
+const FloorSlider = ({ mySlots, selectedFloor, setSelectedFloor }) => {
+
+  const [tabWidth, setTabWidth] = useState(70);
+  const [tabPosition, setTabPosition] = useState(35);
 
   // Handle floor selection click
   const handleFloorClick = (index) => {
@@ -174,3 +295,4 @@ const FloorSlider = ({ mySlots }) => {
     </div>
   );
 };
+
