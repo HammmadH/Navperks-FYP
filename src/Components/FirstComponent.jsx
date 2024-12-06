@@ -2,7 +2,7 @@ import Logo from "../assets/Logo.jpg";
 
 export default function FirstComponent() {
   return (
-    <div className="w-full h-screen flex justify-center items-center bg-gray-100">
+    <div className="w-full h-screen flex justify-center items-center">
       <img
         src={Logo}
         alt="logo"
