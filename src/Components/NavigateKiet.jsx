@@ -1,36 +1,139 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { IoHomeOutline } from "react-icons/io5";
 import { HiOutlineMenu } from "react-icons/hi";
 import { IoIosSearch } from "react-icons/io";
 import { RxCross2 } from "react-icons/rx";
+import { FaBuilding, FaPrayingHands, FaUserFriends, FaMoneyCheck, FaBook } from "react-icons/fa";
+import { MdOutlineSportsEsports, MdOutlineRoom } from "react-icons/md";
+import { GiFactory, GiSofa } from "react-icons/gi"; // Add more icons
 import Map from "./Map";
+import gcr from "../assets/gcr.png";
+import accounts from "../assets/accounts.png";
+import library from "../assets/library.png";
+import pray from "../assets/pray.png"
+
 
 export default function NavigateKiet({ onHomeClick }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState(null); // Track which section is open
-  const [activeFloor, setActiveFloor] = useState(null); // Track the active floor within a department
+  const [isVerticalMenuOpen, setIsVerticalMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState(null);
+  const [activeFloor, setActiveFloor] = useState(null);
+  const menuRef = useRef(null);
+
+  const departments = {
+    cocis: { // Add icon here
+      floors: {
+        "Floor 1": [
+          { name: "Helmet Area", icon: <MdOutlineRoom size={20} /> },
+          { name: "IT Room", icon: <MdOutlineRoom size={20} /> },
+          { name: "COCIS Accounts", icon: <FaMoneyCheck size={20} /> },
+          { name: "COCIS Examinations", icon: <FaBook size={20} /> },
+          { name: "Sports Room", icon: <MdOutlineSportsEsports size={20} /> },
+          { name: "Lab 1", icon: <MdOutlineRoom size={20} /> },
+          { name: "Lab 2", icon: <MdOutlineRoom size={20} /> },
+          { name: "Lab 3", icon: <MdOutlineRoom size={20} /> },
+          { name: "DLD Lab", icon: <MdOutlineRoom size={20} /> },
+          { name: "Notice Board", icon: <GiSofa size={20} /> },
+        ],
+        "Floor 2": [
+          { name: "ATM", icon: <FaMoneyCheck size={20} /> },
+          { name: "Faculty Room", icon: <FaBuilding size={20} /> },
+          { name: "HODS Room", icon: <FaBuilding size={20} /> },
+          { name: "COCIS Academics", icon: <FaBook size={20} /> },
+          { name: "Notice Board", icon: <GiSofa size={20} /> },
+          { name: "Room 1B", icon: <MdOutlineRoom size={20} /> },
+          { name: "Room 2B", icon: <MdOutlineRoom size={20} /> },
+          { name: "Room 3B", icon: <MdOutlineRoom size={20} /> },
+          { name: "GCR", icon: <FaUserFriends size={20} /> }, // Girls Common Room
+        ],
+      },
+    },
+    coms: { // Example icon for COMS
+      floors: {
+        "Floor 1": [
+          { name: "Helmet Area", icon: <MdOutlineRoom size={20} /> },
+          { name: "Auditorium", icon: <MdOutlineRoom size={20} /> },
+          { name: "COMS Accounts", icon: <FaMoneyCheck size={20} /> },
+          { name: "COMS Examinations", icon: <FaBook size={20} /> },
+          { name: "Room 1A", icon: <MdOutlineRoom size={20} /> },
+          { name: "Room 1B", icon: <MdOutlineRoom size={20} /> },
+          { name: "Room 1C", icon: <MdOutlineRoom size={20} /> },
+        ],
+        "Floor 2": [
+          { name: "Faculty Room", icon: <FaBuilding size={20} /> },
+          { name: "HODS Room", icon: <FaBuilding size={20} /> },
+          { name: "COMS Academics", icon: <FaBook size={20} /> },
+          { name: "Notice Board", icon: <GiSofa size={20} /> },
+          { name: "Library", icon: <FaBook size={20} /> },
+          { name: "Prayer Area", icon: <FaPrayingHands size={20} /> },
+        ],
+        "Floor 3": [
+          { name: "Cafeteria", icon: <GiSofa size={20} /> },
+          { name: "Foosball", icon: <MdOutlineSportsEsports size={20} /> },
+          { name: "Table Tennis", icon: <MdOutlineSportsEsports size={20} /> },
+          { name: "Carrom", icon: <MdOutlineSportsEsports size={20} /> },
+          { name: "Sitting Area", icon: <GiSofa size={20} /> },
+        ],
+      },
+    },
+  };
+
+  const facilities = {
+    "Prayer Area": { department: "coms", floor: "Floor 2" },
+    "Girls' Common Room": { department: "cocis", floor: "Floor 2" },
+    Accounts: { department: "cocis", floor: "Floor 1" },
+    Library: { department: "coms", floor: "Floor 2" },
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+    setActiveSection(null);
   };
 
-  const toggleSection = (section) => {
-    // If the clicked section is already open, close it. Otherwise, open it and close others.
-    setActiveSection(activeSection === section ? null : section);
-    setActiveFloor(null); // Reset the active floor when changing sections
+  const toggleVerticalMenu = () => {
+    setIsVerticalMenuOpen(!isVerticalMenuOpen);
   };
 
-  const toggleFloor = (section, floor) => {
-    // If the clicked floor is already open, close it. Otherwise, open it and close others.
-    if (activeSection === section) {
-      setActiveFloor(activeFloor === floor ? null : floor);
+  const handleFacilityClick = (facility) => {
+    const { department, floor } = facilities[facility];
+    setActiveSection(department);
+    setActiveFloor(floor);
+    setIsVerticalMenuOpen(false);
+    setIsMenuOpen(true);
+  };
+
+  const handleDepartmentClick = (department) => {
+    setActiveSection(department);
+    setActiveFloor(null);
+    setIsVerticalMenuOpen(false);
+    setIsMenuOpen(true);
+  };
+
+  const toggleFloor = (floor) => {
+    setActiveFloor(activeFloor === floor ? null : floor);
+  };
+
+  const handleClickOutside = (event) => {
+    if (menuRef.current && !menuRef.current.contains(event.target)) {
+      setIsVerticalMenuOpen(false);
     }
   };
+
+  useEffect(() => {
+    if (isVerticalMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isVerticalMenuOpen]);
 
   return (
     <div className="relative">
       {/* Navigation Bar */}
-      <div className={`flex pb-2 pt-5 gap-x-10 px-3 justify-between items-center transition-all duration-300`}>
+      <div className="flex pb-2 pt-5 gap-x-10 px-3 justify-between items-center transition-all duration-300">
         <IoHomeOutline
           onClick={onHomeClick}
           color="#17502d"
@@ -45,12 +148,69 @@ export default function NavigateKiet({ onHomeClick }) {
             placeholder="Search"
           />
         </div>
-        <HiOutlineMenu size={35} onClick={toggleMenu} />
+        <HiOutlineMenu size={35} onClick={toggleVerticalMenu} />
       </div>
 
-      {/* Dropdown Menu */}
+      {/* Vertical Navbar */}
+      {isVerticalMenuOpen && (
+        <div
+          ref={menuRef}
+          className={`fixed top-14 right-0 bottom-0 w-16 bg-white shadow-lg z-50 flex flex-col items-center overflow-hidden transition-transform duration-700 ease-in-out transform ${
+            isVerticalMenuOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+          style={{ marginTop: "px" }}
+        >
+          <div
+            className="m-4 cursor-pointer flex justify-center items-center w-12 h-12 rounded-full bg-green-500 text-white text-lg font-bold"
+            onClick={toggleMenu}
+          >
+            K
+          </div>
+          <FaBuilding
+            className="m-4 cursor-pointer"
+            size={30}
+            onClick={() => handleDepartmentClick("cocis")}
+            title="COCIS Department"
+          />
+          <GiFactory
+            className="m-4 cursor-pointer"
+            size={30}
+            onClick={() => handleDepartmentClick("coms")}
+            title="COMS Department"
+          />
+          <hr className="w-8 border-gray-300 my-4" />
+          <FaPrayingHands
+            className="m-4 cursor-pointer"
+            size={30}
+            onClick={() => handleFacilityClick("Prayer Area")}
+            title="Prayer Area"
+          />
+          <FaUserFriends
+            className="m-4 cursor-pointer"
+            size={30}
+            onClick={() => handleFacilityClick("Girls' Common Room")}
+            title="Girls' Common Room"
+          />
+          <FaMoneyCheck
+            className="m-4 cursor-pointer"
+            size={30}
+            onClick={() => handleFacilityClick("Accounts")}
+            title="Accounts"
+          />
+          <FaBook
+            className="m-4 cursor-pointer"
+            size={30}
+            onClick={() => handleFacilityClick("Library")}
+            title="Library"
+          />
+        </div>
+      )}
+
+      {/* Main Sidebar */}
       <div
-        className={`fixed top-0 right-0 w-full h-full z-50 bg-white text-black transform ${isMenuOpen ? "translate-x-0" : "translate-x-full"} transition-transform duration-500 ease-in-out`}
+        className={`fixed top-0 right-0 w-full h-full z-50 bg-white text-black transform ${
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        } transition-transform duration-500 ease-in-out`}
       >
         <div className="p-4">
           <div className="flex justify-between items-center">
@@ -69,121 +229,44 @@ export default function NavigateKiet({ onHomeClick }) {
           </div>
 
           <div className="mt-8 overflow-y-scroll h-full">
-            {/* COCIS Department */}
-            <div
-              className="text-lg font-semibold cursor-pointer py-2 px-4"
-              onClick={() => toggleSection("cocis")}
-            >
-              COCIS DEPARTMENT
-            </div>
-            {activeSection === "cocis" && (
-              <div className="ml-4">
+            {Object.keys(departments).map((dept) => (
+              <div key={dept}>
                 <div
-                  className={`cursor-pointer py-2 px-4 ${activeFloor === "cocis-floor1" ? "bg-green-100" : ""}`}
-                  onClick={() => toggleFloor("cocis", "cocis-floor1")}
+                  className={`text-lg font-semibold cursor-pointer py-2 px-4 ${
+                    activeSection === dept ? "text-green-600" : ""
+                  }`}
+                  onClick={() => setActiveSection(dept)}
                 >
-                  Floor 1
+                  {departments[dept].icon} {dept.toUpperCase()} DEPARTMENT
                 </div>
-                {activeFloor === "cocis-floor1" && (
-                  <div className="ml-8 space-y-1">
-                    <div>Helmet Area</div>
-                    <div>IT Room</div>
-                    <div>COCIS Accounts</div>
-                    <div>COCIS Examinations</div>
-                    <div>Sports Room</div>
-                    <div>Lab 1</div>
-                    <div>Lab 2</div>
-                    <div>Lab 3</div>
-                    <div>DLD Lab</div>
-                    <div>Notice Board</div>
-                  </div>
-                )}
-                <div
-                  className={`cursor-pointer py-2 px-4 ${activeFloor === "cocis-floor2" ? "bg-green-100" : ""}`}
-                  onClick={() => toggleFloor("cocis", "cocis-floor2")}
-                >
-                  Floor 2
-                </div>
-                {activeFloor === "cocis-floor2" && (
-                  <div className="ml-8 space-y-1">
-                    <div>ATM</div>
-                    <div>Faculty Room</div>
-                    <div>HODS Room</div>
-                    <div>COCIS Academics</div>
-                    <div>Notice Board</div>
-                    <div>Room 1B</div>
-                    <div>Room 2B</div>
-                    <div>Room 3B</div>
-                    <div>GCR</div>
-                  </div>
-                )}
+                {activeSection === dept &&
+                  Object.keys(departments[dept].floors).map((floor) => (
+                    <div key={floor}>
+                      <div
+                        className={`ml-8 text-base font-medium cursor-pointer py-1 ${
+                          activeFloor === floor ? "text-green-500" : "text-gray-700"
+                        }`}
+                        onClick={() => toggleFloor(floor)}
+                      >
+                        {floor}
+                      </div>
+                      {activeFloor === floor && (
+                        <ul className="ml-12">
+                          {departments[dept].floors[floor].map((room) => (
+                            <li key={room.name} className="text-sm text-gray-600 py-1 flex items-center gap-2">
+                              {room.icon} {room.name}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
               </div>
-            )}
-
-            {/* COMS Department */}
-            <div
-              className="text-lg font-semibold cursor-pointer py-2 px-4 mt-4"
-              onClick={() => toggleSection("coms")}
-            >
-              COMS DEPARTMENT
-            </div>
-            {activeSection === "coms" && (
-              <div className="ml-4">
-                <div
-                  className={`cursor-pointer py-2 px-4 ${activeFloor === "coms-floor1" ? "bg-green-100" : ""}`}
-                  onClick={() => toggleFloor("coms", "coms-floor1")}
-                >
-                  Floor 1
-                </div>
-                {activeFloor === "coms-floor1" && (
-                  <div className="ml-8 space-y-1">
-                    <div>Helmet Area</div>
-                    <div>Auditorium</div>
-                    <div>COMS Accounts</div>
-                    <div>COMS Examinations</div>
-                    <div>Room 1A</div>
-                    <div>Room 1B</div>
-                    <div>Room 1C</div>
-                  </div>
-                )}
-                <div
-                  className={`cursor-pointer py-2 px-4 ${activeFloor === "coms-floor2" ? "bg-green-100" : ""}`}
-                  onClick={() => toggleFloor("coms", "coms-floor2")}
-                >
-                  Floor 2
-                </div>
-                {activeFloor === "coms-floor2" && (
-                  <div className="ml-8 space-y-1">
-                    <div>Faculty Room</div>
-                    <div>HODS Room</div>
-                    <div>COMS Academics</div>
-                    <div>Notice Board</div>
-                    <div>Library</div>
-                    <div>Prayer Area</div>
-                  </div>
-                )}
-                <div
-                  className={`cursor-pointer py-2 px-4 ${activeFloor === "coms-floor3" ? "bg-green-100" : ""}`}
-                  onClick={() => toggleFloor("coms", "coms-floor3")}
-                >
-                  Floor 3
-                </div>
-                {activeFloor === "coms-floor3" && (
-                  <div className="ml-8 space-y-1">
-                    <div>Cafeteria</div>
-                    <div>Foosball</div>
-                    <div>Table Tennis</div>
-                    <div>Carrom</div>
-                    <div>Sitting Area</div>
-                  </div>
-                )}
-              </div>
-            )}
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Map Component */}
       <Map />
     </div>
   );

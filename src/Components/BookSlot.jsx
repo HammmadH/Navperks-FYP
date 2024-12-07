@@ -191,11 +191,6 @@ export default function BookSlot({ onHomeClick }) {
           </div>
           <div className="rotate-90"><img src={Car} className="opacity-60"/></div>
         </div>
-
-
-
-
-
         {/* Even Slots */}
         <div className="py-2 border-t border-b border-r border-dotted border-gray-400">
           {/* Empty Slot (Above Even Slots) */}
@@ -219,7 +214,7 @@ export default function BookSlot({ onHomeClick }) {
                   onClick={() => handleSlotClick(slot)}
                   className={`cursor-pointer h-full ml-2 flex  rounded `}
                 >
-                  {slot.reserved ? <img src={Car} className="m-auto" /> : <div className="m-auto">Available</div>}
+                  {slot.reserved ? <img src={Car} className="m-auto rotate-180" /> : <div className="m-auto">Available</div>}
                 </div>
                 {/* Divider Line */}
                 <div className="absolute inset-x-0 -bottom-2 h-[1px] border-t border-dotted border-gray-400" />
@@ -240,12 +235,6 @@ export default function BookSlot({ onHomeClick }) {
           </div>
         </div>
       </div>
-
-
-
-
-
-
     </div>
   );
 }
