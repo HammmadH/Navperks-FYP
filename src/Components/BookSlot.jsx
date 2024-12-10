@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import Car from "../assets/car.png"
+import Car from "../assets/car1.png";
+import vertical from "../assets/car.png";
+import { FaLongArrowAltUp } from "react-icons/fa";
 
 export default function BookSlot({ onHomeClick }) {
   const [mySlots, setMySlots] = useState([]);
@@ -103,8 +105,8 @@ export default function BookSlot({ onHomeClick }) {
   };
 
   return (
-    <div className="">
-      <div className="bg-slate-100 shadow-xl fixed z-20 w-full top-0">
+    <div className="flex flex-col">
+      <div className="bg-slate-100 shadow-xl left-0 fixed z-20 w-full top-0">
         {/* Header */}
         <div className="flex py-4 px-3 items-center justify-center rounded">
           <div className="text-[#2cc40d] ml-2 font-extrabold text-2xl">
@@ -116,7 +118,7 @@ export default function BookSlot({ onHomeClick }) {
         <FloorSlider mySlots={mySlots} selectedFloor={selectedFloor} setSelectedFloor={setSelectedFloor} />
       </div>
       {/* slot container */}
-      <div className="grid mt-40 grid-cols-3 gap-4 px-4">
+      <div className="grid h-4/6 overflow-y-scroll pt-40 pb-20 grid-cols-3 gap-4 px-4">
         {/* Odd Slots */}
         <div className="py-2 border-t  border-b border-l border-dotted border-gray-400">
           {/* Empty Slot (Above Odd Slots) */}
@@ -159,37 +161,42 @@ export default function BookSlot({ onHomeClick }) {
         </div>
 
         {/* Spacer Column */}
-        <div className="flex flex-col gap-y-10  justify-between py-14 items-center h-full">
+        <div className="flex flex-col gap-y-4 justify-between items-center h-full pt-32">
           {/* Free Slots Information */}
-          <div className="flex flex-col justify-center items-center h-4/5  -rotate-90 p-4">
+          <div className="flex flex-col justify-center items-center h-[100%] text-gray-200 text-3xl font-extrabold -rotate-90 p-4">
             <div>
               {(() => {
                 const freeSlotsCount = mySlots[selectedFloor]?.slots?.filter(
                   (slot) => !slot.reserved
                 ).length;
                 return freeSlotsCount === 1 ? (
-                  <div className="flex gap-x-3 text-xl font-bold">
-                  <p className="">{freeSlotsCount}  </p>
-                  <p>Slot</p>
-                  <p>Free</p>
+                  <div className="flex gap-x-3">
+                    <p className="">{freeSlotsCount}  </p>
+                    <p>SLOT</p>
+                    <p>FREE</p>
                   </div>
                 ) : freeSlotsCount && freeSlotsCount > 0 ? (
-                  <div className="flex gap-x-3 text-xl font-bold">
-                  <p className="">{freeSlotsCount}  </p>
-                  <p>Slots</p>
-                  <p>Free</p>
+                  <div className="flex gap-x-3">
+                    <p className="">{freeSlotsCount}  </p>
+                    <p>SLOTS</p>
+                    <p>FREE</p>
                   </div>
                 ) : (
-                  <div className="flex text-red-300 text-xl font-bold gap-x-3">
-                  <p className="">No  </p>
-                  <p>Slot</p>
-                  <p>Available</p>
+                  <div className="flex text-red-300 gap-x-3">
+                    <p className="">NO  </p>
+                    <p>SLOT</p>
+                    <p>AVAILABLE</p>
                   </div>
                 );
               })()}
             </div>
           </div>
-          <div className="rotate-90"><img src={Car} className="opacity-60"/></div>
+          <div className=""><img src={vertical} className="opacity-60" height={0} width={40}/>
+          </div>
+          <div className="flex flex-col items-center text-center">
+            <FaLongArrowAltUp className="text-center text-gray-300" size={25}/>
+            <div className="font-bold text-green-200 ">Entry</div>
+          </div>
         </div>
         {/* Even Slots */}
         <div className="py-2 border-t border-b border-r border-dotted border-gray-400">
