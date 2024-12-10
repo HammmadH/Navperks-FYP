@@ -63,16 +63,12 @@ function App() {
   const renderComponent = () => {
     switch (selectedComponent) {
       case 'home':
-        console.log("main");
         return <MainComponent onSelect={handleSelectComponent} />;
       case 'bookSlot':
-        console.log("book")
         return <BookSlot onHomeClick={handleHomeClick} />;
       case 'yourSlot':
-        console.log("slot")
-        return <NavigateSlot onHomeClick={handleHomeClick} />;
+        return <NavigateSlot onSelect={handleSelectComponent} />;
       case 'kiet':
-        console.log("kiet")
         return <NavigateKiet onHomeClick={handleHomeClick} />;
       default:
         return <MainComponent onSelect={handleSelectComponent} />;
