@@ -3,8 +3,10 @@ import Swal from "sweetalert2";
 import Car from "../assets/car1.png";
 import vertical from "../assets/car.png";
 import { FaLongArrowAltUp } from "react-icons/fa";
+import useParking from "../Context/useParkingContext";
 
-export default function BookSlot({ onHomeClick }) {
+export default function BookSlot({ onSelect }) {
+  const {bookedSlot, bookSlot} = useParking();
   const [mySlots, setMySlots] = useState([]);
   const [selectedFloor, setSelectedFloor] = useState(0);
 
@@ -53,8 +55,7 @@ export default function BookSlot({ onHomeClick }) {
   }, []);
 
   const handleSlotClick = (slot) => {
-    const bookedSlot = localStorage.getItem("bookedSlot");
-    if (bookedSlot) {
+    if (bookedSlot != null) {
       Swal.fire({
         icon: "warning",
         title: "Slot Already Booked",
@@ -83,6 +84,7 @@ export default function BookSlot({ onHomeClick }) {
     }).then((result) => {
       if (result.isConfirmed) {
         confirmReservation(slot);
+        onSelect("yourSlot")
       }
     });
   };
@@ -96,7 +98,7 @@ export default function BookSlot({ onHomeClick }) {
     }));
     setMySlots(updatedSlots);
     localStorage.setItem("slots", JSON.stringify(updatedSlots));
-    localStorage.setItem("bookedSlot", slot.id);
+    bookSlot(slot.id);
     Swal.fire({
       icon: "success",
       title: "Reservation Confirmed",

@@ -152,7 +152,7 @@ export default function NavigateKiet({ onHomeClick }) {
   return (
     <div className="relative">
       {/* Navigation Bar */}
-      <div className="flex pb-2 pt-5 gap-x-10 px-3 justify-between items-center transition-all duration-300">
+      <div className="flex fixed top-0 inset-x-0 w-full pb-2 pt-5 gap-x-10 px-3 justify-between items-center transition-all duration-300">
         <IoHomeOutline
           onClick={onHomeClick}
           color="#17502d"
