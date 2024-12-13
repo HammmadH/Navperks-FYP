@@ -65,7 +65,7 @@ function App() {
       case 'home':
         return <MainComponent onSelect={handleSelectComponent} />;
       case 'bookSlot':
-        return <BookSlot onHomeClick={handleHomeClick} />;
+        return <BookSlot onSelect={handleSelectComponent} />;
       case 'yourSlot':
         return <NavigateSlot onSelect={handleSelectComponent} />;
       case 'kiet':
