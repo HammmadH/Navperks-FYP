@@ -1,131 +1,207 @@
-import { useState, useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import map from "../assets/map.svg";
 
 export default function Map() {
-  const [scale, setScale] = useState(1); // Zoom scale
-  const [position, setPosition] = useState({ x: 0, y: 0 }); // Image position
-  const [dragging, setDragging] = useState(false);
-  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-
-  const mapRef = useRef(null);
   const containerRef = useRef(null);
-  const prevDistanceRef = useRef(0); // For pinch-to-zoom distance tracking
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [lastMousePosition, setLastMousePosition] = useState(null);
+  const [lastTouchDistance, setLastTouchDistance] = useState(null);
 
-  // Handle zooming with mouse wheel (desktop)
-  const handleZoom = (e) => {
-    e.preventDefault(); // Prevent default scrolling behavior
+  // Prevent default browser zoom and scroll behavior
+  useEffect(() => {
+    const preventDefault = (e) => e.preventDefault();
+    document.addEventListener("wheel", preventDefault, { passive: false });
+    document.addEventListener("gesturestart", preventDefault, { passive: false });
 
-    const delta = e.deltaY > 0 ? -0.2 : 0.2; // Negative delta zooms out
-    const newScale = Math.min(Math.max(scale + delta, 0.5), 15); // Clamp zoom scale between 0.5 and 15
+    return () => {
+      document.removeEventListener("wheel", preventDefault);
+      document.removeEventListener("gesturestart", preventDefault);
+    };
+  }, []);
+
+  const handleWheel = (event) => {
+    event.preventDefault();
+
+    if (!containerRef.current) return;
+
+    const container = containerRef.current.getBoundingClientRect();
+
+    // Mouse position relative to the container
+    const mouseX = event.clientX - container.left;
+    const mouseY = event.clientY - container.top;
+
+    // Calculate new scale
+    const zoomIntensity = 0.002; // Adjust zoom sensitivity
+    const newScale = Math.min(Math.max(scale + event.deltaY * -zoomIntensity, 1), 25);
+
+    // Adjust position to keep the zoom centered around the mouse position
+    const scaleFactor = newScale / scale;
+
+    setPosition((prev) => ({
+      x: (prev.x - mouseX) * scaleFactor + mouseX,
+      y: (prev.y - mouseY) * scaleFactor + mouseY,
+    }));
+
     setScale(newScale);
-
-    // Calculate new position based on mouse position for zoom
-    const rect = mapRef.current.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
-
-    const scaleDiff = newScale / scale;
-    const newX = position.x - (offsetX * scaleDiff - offsetX);
-    const newY = position.y - (offsetY * scaleDiff - offsetY);
-
-    setPosition({ x: newX, y: newY });
   };
 
-  // Handle drag start (mouse or touch)
-  const handleMouseDown = (e) => {
-    e.preventDefault();
-    setDragging(true);
-    setStartPos({ x: e.clientX - position.x, y: e.clientY - position.y });
+  const handleMouseDown = (event) => {
+    setIsDragging(true);
+    setLastMousePosition({ x: event.clientX, y: event.clientY });
   };
 
-  // Handle drag end
-  const handleMouseUp = () => setDragging(false);
+  const handleMouseMove = (event) => {
+    if (!isDragging) return;
 
-  // Handle dragging (mouse or touch)
-  const handleMouseMove = (e) => {
-    if (!dragging) return;
-    const map = mapRef.current;
+    const dx = event.clientX - lastMousePosition.x;
+    const dy = event.clientY - lastMousePosition.y;
 
-    // Get the bounds of the map image
-    const mapWidth = map.width * scale;
-    const mapHeight = map.height * scale;
+    setPosition((prev) => constrainPosition(prev.x + dx, prev.y + dy));
 
-    let newX = e.clientX - startPos.x;
-    let newY = e.clientY - startPos.y;
-
-    // Constrain dragging within the bounds of the image and container
-    newX = Math.min(Math.max(newX, containerRef.current.offsetWidth - mapWidth), 0);
-    newY = Math.min(Math.max(newY, containerRef.current.offsetHeight - mapHeight), 0);
-
-    setPosition({ x: newX, y: newY });
+    setLastMousePosition({ x: event.clientX, y: event.clientY });
   };
 
-  // Handle pinch-to-zoom (mobile)
-  const handleTouchMove = (e) => {
-    if (e.touches.length === 2) {
-      e.preventDefault(); // Prevent default pinch zoom behavior
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setLastMousePosition(null);
+  };
 
-      const [touch1, touch2] = e.touches;
-      const currentDistance = Math.sqrt(
-        Math.pow(touch2.clientX - touch1.clientX, 2) + Math.pow(touch2.clientY - touch1.clientY, 2)
-      );
-
-      if (prevDistanceRef.current) {
-        const scaleChange = (currentDistance - prevDistanceRef.current) / 200;
-        setScale((prev) => Math.min(Math.max(prev + scaleChange, 0.5), 15)); // Clamp scale between 0.5 and 15
-      }
-
-      prevDistanceRef.current = currentDistance; // Save the current distance for next move
+  const handleTouchStart = (event) => {
+    if (event.touches.length === 1) {
+      setIsDragging(true);
+      setLastMousePosition({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      });
+    } else if (event.touches.length === 2) {
+      const distance = getTouchDistance(event.touches);
+      setLastTouchDistance(distance);
     }
   };
 
-  // Reset distance on touch end (pinch-to-zoom)
+  const handleTouchMove = (event) => {
+    if (event.touches.length === 1 && isDragging) {
+      const dx = event.touches[0].clientX - lastMousePosition.x;
+      const dy = event.touches[0].clientY - lastMousePosition.y;
+
+      setPosition((prev) => constrainPosition(prev.x + dx, prev.y + dy));
+
+      setLastMousePosition({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      });
+    } else if (event.touches.length === 2) {
+      const distance = getTouchDistance(event.touches);
+
+      if (lastTouchDistance && containerRef.current) {
+        const container = containerRef.current.getBoundingClientRect();
+
+        // Midpoint between two touches
+        const midX =
+          (event.touches[0].clientX + event.touches[1].clientX) / 2 - container.left;
+        const midY =
+          (event.touches[0].clientY + event.touches[1].clientY) / 2 - container.top;
+
+        // Calculate scale change
+        const scaleChange = distance / lastTouchDistance;
+        const newScale = Math.min(Math.max(scale * scaleChange, 1), 25);
+
+        // Adjust position to center zoom around midpoint
+        const scaleFactor = newScale / scale;
+
+        setPosition((prev) => ({
+          x: (prev.x - midX) * scaleFactor + midX,
+          y: (prev.y - midY) * scaleFactor + midY,
+        }));
+
+        setScale(newScale);
+      }
+
+      setLastTouchDistance(distance);
+    }
+  };
+
   const handleTouchEnd = () => {
-    prevDistanceRef.current = 0; // Reset the pinch distance
+    setIsDragging(false);
+    setLastMousePosition(null);
+    setLastTouchDistance(null);
+  };
+
+  const resetZoom = () => {
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const getTouchDistance = (touches) => {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const constrainPosition = (x, y) => {
+    if (!containerRef.current) return { x, y };
+
+    const container = containerRef.current.getBoundingClientRect();
+    const scaledWidth = container.width * scale;
+    const scaledHeight = container.height * scale;
+
+    const maxX = Math.max(0, (scaledWidth - container.width) / 2);
+    const maxY = Math.max(0, (scaledHeight - container.height) / 2);
+
+    return {
+      x: Math.min(maxX, Math.max(-maxX, x)),
+      y: Math.min(maxY, Math.max(-maxY, y)),
+    };
   };
 
   return (
-    <div className="relative h-[80vh] mt-20 w-screen bg-gray-100" ref={containerRef}>
-      {/* Zoom Buttons */}
-      <div className="absolute top-4 right-4 flex flex-col gap-3 z-50">
+    <div
+      className="relative h-[80vh] mt-20 w-screen bg-gray-100 overflow-hidden"
+      ref={containerRef}
+      onWheel={handleWheel}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchStart={handleTouchStart}
+    >
+      <div className="absolute z-10 flex gap-2 top-4 left-4">
         <button
-          onClick={() => setScale((prev) => Math.min(prev + 0.2, 15))}
-          className="bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-700"
+          onClick={() => setScale((prev) => Math.min(prev + 0.5, 25))}
+          className="p-2 bg-white border rounded shadow"
         >
           +
         </button>
         <button
-          onClick={() => setScale((prev) => Math.max(prev - 0.2, 0.5))}
-          className="bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-700"
+          onClick={() => setScale((prev) => Math.max(prev - 0.5, 1))}
+          className="p-2 bg-white border rounded shadow"
         >
           -
         </button>
+        <button
+          onClick={resetZoom}
+          className="p-2 bg-white border rounded shadow"
+        >
+          Reset
+        </button>
       </div>
-
-      {/* Map Container */}
       <div
-        className="relative h-full w-full overflow-hidden border"
-        style={{ touchAction: "none" }} // Disable scrolling and pinch zoom default behavior
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onWheel={handleZoom}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        className="relative h-full w-full"
+        onMouseDown={handleMouseDown}
+        style={{
+          transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+          transition: isDragging ? "none" : "transform 0.3s ease",
+          cursor: isDragging ? "grabbing" : "grab",
+        }}
       >
-        {/* Map Image */}
         <img
           src={map}
           alt="Map"
-          ref={mapRef}
-          onMouseDown={handleMouseDown}
-          style={{
-            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-            transformOrigin: "center", // Adjusted zoom origin for both desktop and mobile
-            transition: dragging ? "none" : "transform 0.3s ease-in-out",
-            cursor: dragging ? "grabbing" : "grab",
-          }}
-          className="select-none w-full h-full object-contain" // Prevents selecting the image
+          className="select-none pointer-events-none w-full h-full object-contain"
+          draggable={false}
         />
       </div>
     </div>
