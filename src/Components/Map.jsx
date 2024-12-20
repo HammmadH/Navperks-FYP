@@ -34,14 +34,14 @@ export default function Map() {
 
     // Calculate new scale
     const zoomIntensity = 0.002; // Adjust zoom sensitivity
-    const newScale = Math.min(Math.max(scale + event.deltaY * -zoomIntensity, 1), 25);
+    const newScale = Math.min(Math.max(scale + event.deltaY * -zoomIntensity, 1), 30);
 
     // Adjust position to keep the zoom centered around the mouse position
     const scaleFactor = newScale / scale;
 
     setPosition((prev) => ({
-      x: (prev.x - mouseX) * scaleFactor + mouseX,
-      y: (prev.y - mouseY) * scaleFactor + mouseY,
+      x: mouseX - scaleFactor * (mouseX - prev.x),
+      y: mouseY - scaleFactor * (mouseY - prev.y),
     }));
 
     setScale(newScale);
@@ -106,14 +106,14 @@ export default function Map() {
 
         // Calculate scale change
         const scaleChange = distance / lastTouchDistance;
-        const newScale = Math.min(Math.max(scale * scaleChange, 1), 25);
+        const newScale = Math.min(Math.max(scale * scaleChange, 1), 30);
 
         // Adjust position to center zoom around midpoint
         const scaleFactor = newScale / scale;
 
         setPosition((prev) => ({
-          x: (prev.x - midX) * scaleFactor + midX,
-          y: (prev.y - midY) * scaleFactor + midY,
+          x: midX - scaleFactor * (midX - prev.x),
+          y: midY - scaleFactor * (midY - prev.y),
         }));
 
         setScale(newScale);
@@ -170,7 +170,7 @@ export default function Map() {
     >
       <div className="absolute z-10 flex gap-2 top-4 left-4">
         <button
-          onClick={() => setScale((prev) => Math.min(prev + 0.5, 25))}
+          onClick={() => setScale((prev) => Math.min(prev + 0.5, 30))}
           className="p-2 bg-white border rounded shadow"
         >
           +
