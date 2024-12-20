@@ -88,6 +88,12 @@ const NavigateSlot = ({ onSelect }) => {
           </div>
         ) : (
           ""
+        )}{remainingTime>0 ? (
+          <div className="p-4 flex flex-col items-center text-red-600">
+            <div>{remainingTime}</div>
+          </div>
+        ) : (
+          ""
         )}
         <Button
           bookedSlot={bookedSlot}
