@@ -18,7 +18,7 @@ export default function SecondComponent({ onContinue }) {
         <div className='flex justify-start items-start mt-32'>
           <input
             type="checkbox"
-            className='h-5 w-5 mr-2 mt-1' 
+            className='h-5 w-5 mr-2 mt-1 bg-white' 
             checked={isChecked}
             onChange={() => setIsChecked(!isChecked)}
           />

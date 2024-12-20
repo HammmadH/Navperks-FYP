@@ -5,10 +5,21 @@ import vertical from "../assets/car.png";
 import { FaLongArrowAltUp } from "react-icons/fa";
 import useParking from "../Context/useParkingContext";
 
+<style jsx>{`
+  @keyframes vanish {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-40vh); opacity: 0; }
+  }
+  .animate-car-vanish {
+    animation: vanish 3s forwards;
+  }
+`}</style>
+
 export default function BookSlot({ onSelect }) {
   const {bookedSlot, bookSlot} = useParking();
   const [mySlots, setMySlots] = useState([]);
   const [selectedFloor, setSelectedFloor] = useState(0);
+  const [animatingSlot, setAnimatingSlot] = useState(null);
 
   useEffect(() => {
     // Retrieve slots from local storage or initialize them
@@ -84,26 +95,31 @@ export default function BookSlot({ onSelect }) {
     }).then((result) => {
       if (result.isConfirmed) {
         confirmReservation(slot);
-        onSelect("yourSlot")
       }
     });
   };
 
   const confirmReservation = (slot) => {
-    const updatedSlots = mySlots.map((floor) => ({
-      ...floor,
-      slots: floor.slots.map((s) =>
-        s.id === slot.id ? { ...s, reserved: true } : s
-      ),
-    }));
-    setMySlots(updatedSlots);
-    localStorage.setItem("slots", JSON.stringify(updatedSlots));
-    bookSlot(slot.id);
-    Swal.fire({
-      icon: "success",
-      title: "Reservation Confirmed",
-      text: `Slot ${slot.id} is reserved for you!`,
-    });
+    setAnimatingSlot(slot.id);
+    setTimeout(() => {
+      const updatedSlots = mySlots.map((floor) => ({
+        ...floor,
+        slots: floor.slots.map((s) =>
+          s.id === slot.id ? { ...s, reserved: true } : s
+        ),
+      }));
+      setMySlots(updatedSlots);
+      localStorage.setItem("slots", JSON.stringify(updatedSlots));
+      bookSlot(slot.id);
+      setAnimatingSlot(null);
+      Swal.fire({
+        icon: "success",
+        title: "Reservation Confirmed",
+        text: `Slot ${slot.id} is reserved for you!`,
+      });
+      onSelect("yourSlot");
+    }, 4000); // Adjust this timing to match your CSS animation duration
+
   };
 
   return (
@@ -163,7 +179,7 @@ export default function BookSlot({ onSelect }) {
         </div>
 
         {/* Spacer Column */}
-        <div className="flex flex-col gap-y-4 justify-between items-center h-full pt-32">
+        <div className="flex relative flex-col gap-y-4 justify-between items-center h-full pt-32 relative">
           {/* Free Slots Information */}
           <div className="flex flex-col justify-center items-center h-[100%] text-gray-200 text-3xl font-extrabold -rotate-90 p-4">
             <div>
@@ -193,12 +209,23 @@ export default function BookSlot({ onSelect }) {
               })()}
             </div>
           </div>
-          <div className=""><img src={vertical} className="opacity-60" height={0} width={40}/>
-          </div>
+          
           <div className="flex flex-col items-center text-center">
             <FaLongArrowAltUp className="text-center text-gray-300" size={25}/>
             <div className="font-bold text-green-200 ">Entry</div>
           </div>
+          {animatingSlot ? (
+            <div className="absolute bottom-0 w-full">
+              <img 
+                src={vertical} 
+                className="animate-car-vanish opacity-60 mx-auto" 
+                height={0} 
+                width={40}
+                alt="Animating car"
+              />
+            </div>
+          ): (<div className=""><img src={vertical} className="opacity-60" height={0} width={40}/>
+          </div>)}
         </div>
         {/* Even Slots */}
         <div className="py-2 border-t border-b border-r border-dotted border-gray-400">
@@ -249,9 +276,12 @@ export default function BookSlot({ onSelect }) {
 }
 
 
+
+
+
 const FloorSlider = ({ mySlots, selectedFloor, setSelectedFloor }) => {
 
-  const [tabWidth, setTabWidth] = useState(70);
+  const [tabWidth, setTabWidth] = useState(60);
   const [tabPosition, setTabPosition] = useState(35);
 
   // Handle floor selection click

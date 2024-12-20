@@ -1,17 +1,16 @@
 import { useState, useEffect, useRef } from "react";
-import { IoHomeOutline } from "react-icons/io5";
-import { HiOutlineMenu } from "react-icons/hi";
-import { IoIosSearch } from "react-icons/io";
 import { RxCross2 } from "react-icons/rx";
+import { FaLocationDot } from "react-icons/fa6";
+import { MdOutlineSportsEsports, MdOutlineRoom } from "react-icons/md";
+import { GiSofa } from "react-icons/gi"; // Add more icons
+import { IoArrowBackSharp, IoMenu, IoLocationSharp } from "react-icons/io5";
+import { PiDotsThreeVertical } from "react-icons/pi";
 import {
   FaBuilding,
-  FaPrayingHands,
-  FaUserFriends,
   FaMoneyCheck,
   FaBook,
+  FaDotCircle
 } from "react-icons/fa";
-import { MdOutlineSportsEsports, MdOutlineRoom } from "react-icons/md";
-import { GiFactory, GiSofa } from "react-icons/gi"; // Add more icons
 import Map from "./Map";
 import gcr from "../assets/gcr.png";
 import accounts from "../assets/accounts.png";
@@ -20,6 +19,7 @@ import pray from "../assets/pray.png";
 
 export default function NavigateKiet({ onHomeClick }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDirectionPageOpen, setIsDirectionPageOpen] = useState(false);
   const [isVerticalMenuOpen, setIsVerticalMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
   const [activeFloor, setActiveFloor] = useState(null);
@@ -100,8 +100,8 @@ export default function NavigateKiet({ onHomeClick }) {
   const facilities = {
     "Prayer Area": { department: "coms", floor: "Floor 2" },
     "Girls' Common Room": { department: "cocis", floor: "Floor 2" },
-    Accounts: { department: "cocis", floor: "Floor 1" },
-    Library: { department: "coms", floor: "Floor 2" },
+    "Accounts": { department: "cocis", floor: "Floor 1" },
+    "Library": { department: "coms", floor: "Floor 2" },
   };
 
   const toggleMenu = () => {
@@ -112,6 +112,10 @@ export default function NavigateKiet({ onHomeClick }) {
   const toggleVerticalMenu = () => {
     setIsVerticalMenuOpen(!isVerticalMenuOpen);
   };
+
+  const toggleDirectionPage = () => {
+    setIsDirectionPageOpen(!isDirectionPageOpen);
+  }
 
   const handleFacilityClick = (facility) => {
     const { department, floor } = facilities[facility];
@@ -151,26 +155,69 @@ export default function NavigateKiet({ onHomeClick }) {
 
   return (
     <div className="relative">
-      {/* Navigation Bar */}
-      <div className="flex fixed top-0 inset-x-0 w-full pb-2 pt-5 gap-x-10 px-3 justify-between items-center transition-all duration-300">
-        <IoHomeOutline
-          onClick={onHomeClick}
-          color="#17502d"
-          className="bg-white"
-          size={35}
-        />
-        <div className="relative">
-          <IoIosSearch
-            size={35}
-            className="absolute text-gray-400 top-1 left-1"
+      {/* Search Bar */}
+      <div className=" fixed top-0 inset-x-0 w-full pt-5 pb-2 gap-x-10 px-3 bg-gray-100 transition-all duration-300">
+        <div className="relative w-full">
+          <FaLocationDot
+            size={25}
+            className="absolute text-gray-400 top-[10px] left-2"
           />
           <input
             type="text"
-            className="w-full border h-11 rounded-full py-1 pl-10"
-            placeholder="Search"
+            className="w-full border h-12 bg-white rounded-full py-1 px-10 text-lg"
+            placeholder="Search Here"
           />
+
+          <div
+            className="absolute top-2 right-2 cursor-pointer flex justify-center items-center w-[32px] h-[32px] rounded-full bg-[#2cc40d] text-white font-bold"
+            onClick={toggleMenu}
+          >
+            K
+          </div>
         </div>
-        <HiOutlineMenu size={35} onClick={toggleVerticalMenu} />
+        <div className="flex justify-start gap-x-2  overflow-x-scroll py-2">
+          <div onClick={() => handleDepartmentClick("cocis")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+            <FaBuilding
+              size={12}
+              title="COCIS Department"
+            />
+            <div className="text-center text-gray-700/75">COCIS</div>
+          </div>
+          <div onClick={() => handleDepartmentClick("coms")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+
+            <FaBuilding
+              size={12}
+              title="COMS Department"
+            />
+            <div className="text-center text-gray-700/75">COMS</div>
+          </div>
+          <div onClick={() => handleFacilityClick("Prayer Area")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+
+            <img src={pray} height={12} width={12}
+              title="Prayer Area"
+            />
+            <div className="text-center text-gray-700/75">Pray</div>
+          </div>
+          <div onClick={() => handleFacilityClick("Girls' Common Room")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+
+            <img src={gcr} height={12} width={12}
+              title="Girls' Common Room"
+            />
+            <div className="text-center text-gray-700/75">GCR</div>
+          </div>
+          <div onClick={() => handleFacilityClick("Accounts")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+            <img src={accounts} height={12} width={12}
+              title="Accounts"
+            />
+            <div className="text-center text-gray-700/75">Accounts</div>
+          </div>
+          <div onClick={() => handleFacilityClick("Library")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+
+            <img src={library} height={12} width={12}
+              title="Library"
+            />
+            <div className="text-gray-700/75">Library</div>
+          </div></div>
       </div>
 
       {/* Vertical Navbar */}
@@ -317,7 +364,27 @@ export default function NavigateKiet({ onHomeClick }) {
         </div>
       </div>
 
-      <Map />
+      <div
+        className={`fixed top-0 inset-x-0 w-screen h-full z-30 bg-gray-100 text-black transform ${isDirectionPageOpen ? "translate-y-0" : "translate-y-full"
+          } transition-transform duration-700 ease-in-out py-5 px-2`}
+      >
+        <div className="flex justify-stretch gap-x-2 items-start">
+          <button onClick={toggleDirectionPage} className="p-2 rounded-full shadow" ><IoArrowBackSharp size={20} /></button>
+          <div className="flex w-4/5 gap-x-1">
+            <div className="flex flex-col justify-center items-center gap-y-2">
+              <FaDotCircle size={15} color="blue" />
+              <PiDotsThreeVertical size={20} />
+              <IoLocationSharp size={20} color="red" />
+            </div>
+            <div className="flex flex-col w-full gap-y-3">
+              <input type="text" className="border rounded-md border-black bg-white text-lg px-3 py-2" placeholder="Your Location" disabled />
+              <input type="text" className="border rounded-md border-black bg-white text-lg px-3 py-2" placeholder="Choose Destination" />
+            </div>
+          </div>
+          <button onClick={toggleMenu} className="p-2 rounded-full shadow"><IoMenu size={20} /></button>
+        </div>
+      </div>
+      <Map onHomeClick={onHomeClick} toggleDirectionPage={toggleDirectionPage} />
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import { useRef, useState, useEffect } from "react";
 import map from "../assets/map.svg";
+import { FaHome , FaDirections } from "react-icons/fa";
+import { TbZoomReset } from "react-icons/tb";
 
-export default function Map() {
+export default function Map({onHomeClick , toggleDirectionPage}) {
   const containerRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -158,7 +160,7 @@ export default function Map() {
 
   return (
     <div
-      className="relative h-[80vh] mt-20 w-screen bg-gray-100 overflow-hidden"
+      className="relative mt-[107px] w-screen bg-gray-100 overflow-hidden"
       ref={containerRef}
       onWheel={handleWheel}
       onMouseMove={handleMouseMove}
@@ -168,25 +170,10 @@ export default function Map() {
       onTouchEnd={handleTouchEnd}
       onTouchStart={handleTouchStart}
     >
-      <div className="absolute z-10 flex gap-2 top-4 left-4">
-        <button
-          onClick={() => setScale((prev) => Math.min(prev + 0.5, 30))}
-          className="p-2 bg-white border rounded shadow"
-        >
-          +
-        </button>
-        <button
-          onClick={() => setScale((prev) => Math.max(prev - 0.5, 1))}
-          className="p-2 bg-white border rounded shadow"
-        >
-          -
-        </button>
-        <button
-          onClick={resetZoom}
-          className="p-2 bg-white border rounded shadow"
-        >
-          Reset
-        </button>
+      <div className="absolute bottom-5 right-5 flex flex-col gap-y-5 z-20">
+        <button onClick={onHomeClick} className="rounded-full flex justify-center items-center text-center bg-gray-100 shadow-sm p-2 "><FaHome size={20}/></button>
+        <button onClick={toggleDirectionPage} className="rounded-full flex justify-center items-center text-center bg-gray-100 shadow-sm p-2"><FaDirections size={20}/></button>
+        <button onClick={resetZoom} className="rounded-full flex justify-center items-center text-center bg-gray-100 shadow-sm p-2"><TbZoomReset size={20}/></button>
       </div>
       <div
         className="relative h-full w-full"
