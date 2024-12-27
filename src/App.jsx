@@ -76,7 +76,7 @@ function App() {
   };
 
   return (
-    <div className='h-full overflow-none'>
+    <div className='h-full overflow-none [::webkit-scrollbar]:0'>
       {step === 1 && <FirstComponent />}
       {step === 2 && <SecondComponent onContinue={handleContinue} />}
       {step === 3 && renderComponent()}

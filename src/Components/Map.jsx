@@ -87,43 +87,48 @@ export default function Map({onHomeClick , toggleDirectionPage}) {
     if (event.touches.length === 1 && isDragging) {
       const dx = event.touches[0].clientX - lastMousePosition.x;
       const dy = event.touches[0].clientY - lastMousePosition.y;
-
+      
       setPosition((prev) => constrainPosition(prev.x + dx, prev.y + dy));
-
+  
       setLastMousePosition({
         x: event.touches[0].clientX,
         y: event.touches[0].clientY,
       });
     } else if (event.touches.length === 2) {
       const distance = getTouchDistance(event.touches);
-
+      
       if (lastTouchDistance && containerRef.current) {
         const container = containerRef.current.getBoundingClientRect();
-
-        // Midpoint between two touches
-        const midX =
-          (event.touches[0].clientX + event.touches[1].clientX) / 2 - container.left;
-        const midY =
-          (event.touches[0].clientY + event.touches[1].clientY) / 2 - container.top;
-
+  
+        // Calculate the midpoint between the two touches
+        const midX = (event.touches[0].clientX + event.touches[1].clientX) / 2 - container.left;
+        const midY = (event.touches[0].clientY + event.touches[1].clientY) / 2 - container.top;
+  
         // Calculate scale change
         const scaleChange = distance / lastTouchDistance;
         const newScale = Math.min(Math.max(scale * scaleChange, 1), 30);
-
-        // Adjust position to center zoom around midpoint
+  
+        // Adjust the position based on the midpoint, scale change, and previous position
         const scaleFactor = newScale / scale;
-
+  
+        // Calculate how much the zoom moves the image
+        const offsetX = midX - (position.x + container.width / 2);
+        const offsetY = midY - (position.y + container.height / 2);
+  
+        // Apply the scale change and adjust the position accordingly
         setPosition((prev) => ({
-          x: midX - scaleFactor * (midX - prev.x),
-          y: midY - scaleFactor * (midY - prev.y),
+          x: prev.x + offsetX * (1 - scaleFactor),
+          y: prev.y + offsetY * (1 - scaleFactor),
         }));
-
+  
         setScale(newScale);
       }
-
+  
       setLastTouchDistance(distance);
     }
   };
+  
+  
 
   const handleTouchEnd = () => {
     setIsDragging(false);

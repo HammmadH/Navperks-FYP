@@ -28,72 +28,77 @@ export default function NavigateKiet({ onHomeClick }) {
   const departments = {
     cocis: {
       // Add icon here
-      floors: {
-        "Floor 1": [
-          { name: "Helmet Area", icon: <MdOutlineRoom size={20} /> },
-          { name: "IT Room", icon: <MdOutlineRoom size={20} /> },
-          {
-            name: "COCIS Accounts",
-            icon: <img src={accounts} height={20} width={20} />,
-          },
-          { name: "COCIS Examinations", icon: <FaBook size={20} /> },
-          { name: "Sports Room", icon: <MdOutlineSportsEsports size={20} /> },
-          { name: "Lab 1", icon: <MdOutlineRoom size={20} /> },
-          { name: "Lab 2", icon: <MdOutlineRoom size={20} /> },
-          { name: "Lab 3", icon: <MdOutlineRoom size={20} /> },
-          { name: "DLD Lab", icon: <MdOutlineRoom size={20} /> },
-          { name: "Notice Board", icon: <GiSofa size={20} /> },
-        ],
-        "Floor 2": [
-          { name: "ATM", icon: <FaMoneyCheck size={20} /> },
-          { name: "Faculty Room", icon: <FaBuilding size={20} /> },
-          { name: "HODS Room", icon: <FaBuilding size={20} /> },
-          { name: "COCIS Academics", icon: <FaBook size={20} /> },
-          { name: "Notice Board", icon: <GiSofa size={20} /> },
-          { name: "Room 1B", icon: <MdOutlineRoom size={20} /> },
-          { name: "Room 2B", icon: <MdOutlineRoom size={20} /> },
-          { name: "Room 3B", icon: <MdOutlineRoom size={20} /> },
-          { name: "GCR", icon: <img src={gcr} height={20} width={20} /> }, // Girls Common Room
-        ],
-      },
+
+      "Floor 1": [
+        // { name: "Helmet Area", icon: <MdOutlineRoom size={20} /> },
+        // { name: "IT Room", icon: <MdOutlineRoom size={20} />, x: 369.98, y: 632, height: 54.05, width: 87.61 },
+        {
+          name: "COCIS Accounts",
+          icon: <img src={accounts} height={20} width={20} />, x: 170.72, y: 686.79, height: 54.05, width: 87.61
+        },
+        { name: "COCIS Examinations", icon: <FaBook size={20} />, x: 62.98, y: 578.69, height: 79, width: 89.98 },
+        { name: "Lab 1", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 387.43, height: 93.55, width: 89.98 },
+        { name: "Lab 2", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 289.73, height: 93.55, width: 89.98 },
+        { name: "Lab 3", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 422.78, height: 93.55, width: 89.98 },
+        { name: "Lab 4", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 325.07, height: 93.55, width: 89.98 },
+        { name: "Lab 5", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 228.4, height: 93.55, width: 89.98 },
+        { name: "Lab 6", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 131.73, height: 93.55, width: 89.98 },
+        { name: "DLD Lab", icon: <MdOutlineRoom size={20} />, x: 61.8, y: 131.73, height: 152.8, width: 89.98 },
+        { name: "Server Room", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 483.06, height: 44.7, width: 89.98 },
+        { name: "Sports Room", icon: <MdOutlineSportsEsports size={20} />, x: 62.98, y: 530.88, height: 44.7, width: 89.98 },
+        // { name: "Notice Board", icon: <GiSofa size={20} /> },
+        { name: "Faculty Washroom 1", icon: <FaBook size={20} />, x: 60.61, y: 88.08, height: 39.5, width: 89.98 },
+        { name: "Faculty Washroom 2", icon: <FaBook size={20} />, x: 233.47, y: 88.08, height: 39.5, width: 89.98 },
+        { name: "President", icon: <FaBook />, x: 62.98, y: 660.81, height: 79, width: 68.67 },
+        { name: "Washroom", icon: <FaBook />, x: 32.83, y: 702.38, height: 37.42, width: 34.33 }
+      ],
+      "Floor 2": [
+        { name: "ATM", icon: <FaMoneyCheck size={20} /> },
+        { name: "Faculty Room", icon: <FaBuilding size={20} /> },
+        { name: "HODS Room", icon: <FaBuilding size={20} /> },
+        { name: "COCIS Academics", icon: <FaBook size={20} /> },
+        { name: "Notice Board", icon: <GiSofa size={20} /> },
+        { name: "Room 1B", icon: <MdOutlineRoom size={20} /> },
+        { name: "Room 2B", icon: <MdOutlineRoom size={20} /> },
+        { name: "Room 3B", icon: <MdOutlineRoom size={20} /> },
+        { name: "GCR", icon: <img src={gcr} height={20} width={20} /> }, // Girls Common Room
+      ],
     },
     coms: {
-      // Example icon for COMS
-      floors: {
-        "Floor 1": [
-          { name: "Helmet Area", icon: <MdOutlineRoom size={20} /> },
-          { name: "Auditorium", icon: <MdOutlineRoom size={20} /> },
-          {
-            name: "COMS Accounts",
-            icon: <img src={accounts} height={20} width={20} />,
-          },
-          { name: "COMS Examinations", icon: <FaBook size={20} /> },
-          { name: "Room 1A", icon: <MdOutlineRoom size={20} /> },
-          { name: "Room 1B", icon: <MdOutlineRoom size={20} /> },
-          { name: "Room 1C", icon: <MdOutlineRoom size={20} /> },
-        ],
-        "Floor 2": [
-          { name: "Faculty Room", icon: <FaBuilding size={20} /> },
-          { name: "HODS Room", icon: <FaBuilding size={20} /> },
-          { name: "COMS Academics", icon: <FaBook size={20} /> },
-          { name: "Notice Board", icon: <GiSofa size={20} /> },
-          {
-            name: "Library",
-            icon: <img src={library} height={20} width={20} />,
-          },
-          {
-            name: "Prayer Area",
-            icon: <img src={pray} height={20} width={20} />,
-          },
-        ],
-        "Floor 3": [
-          { name: "Cafeteria", icon: <GiSofa size={20} /> },
-          { name: "Foosball", icon: <MdOutlineSportsEsports size={20} /> },
-          { name: "Table Tennis", icon: <MdOutlineSportsEsports size={20} /> },
-          { name: "Carrom", icon: <MdOutlineSportsEsports size={20} /> },
-          { name: "Sitting Area", icon: <GiSofa size={20} /> },
-        ],
-      },
+
+      "Floor 1": [
+        { name: "Helmet Area", icon: <MdOutlineRoom size={20} /> },
+        { name: "Auditorium", icon: <MdOutlineRoom size={20} /> },
+        {
+          name: "COMS Accounts",
+          icon: <img src={accounts} height={20} width={20} />,
+        },
+        { name: "COMS Examinations", icon: <FaBook size={20} /> },
+        { name: "Room 1A", icon: <MdOutlineRoom size={20} /> },
+        { name: "Room 1B", icon: <MdOutlineRoom size={20} /> },
+        { name: "Room 1C", icon: <MdOutlineRoom size={20} /> },
+      ],
+      "Floor 2": [
+        { name: "Faculty Room", icon: <FaBuilding size={20} /> },
+        { name: "HODS Room", icon: <FaBuilding size={20} /> },
+        { name: "COMS Academics", icon: <FaBook size={20} /> },
+        { name: "Notice Board", icon: <GiSofa size={20} /> },
+        {
+          name: "Library",
+          icon: <img src={library} height={20} width={20} />,
+        },
+        {
+          name: "Prayer Area",
+          icon: <img src={pray} height={20} width={20} />,
+        },
+      ],
+      "Floor 3": [
+        { name: "Cafeteria", icon: <GiSofa size={20} /> },
+        { name: "Foosball", icon: <MdOutlineSportsEsports size={20} /> },
+        { name: "Table Tennis", icon: <MdOutlineSportsEsports size={20} /> },
+        { name: "Carrom", icon: <MdOutlineSportsEsports size={20} /> },
+        { name: "Sitting Area", icon: <GiSofa size={20} /> },
+      ],
     },
   };
 
@@ -368,20 +373,36 @@ export default function NavigateKiet({ onHomeClick }) {
         className={`fixed top-0 inset-x-0 w-screen h-full z-30 bg-gray-100 text-black transform ${isDirectionPageOpen ? "translate-y-0" : "translate-y-full"
           } transition-transform duration-700 ease-in-out py-5 px-2`}
       >
-        <div className="flex justify-stretch gap-x-2 items-start">
-          <button onClick={toggleDirectionPage} className="p-2 rounded-full shadow" ><IoArrowBackSharp size={20} /></button>
-          <div className="flex w-4/5 gap-x-1">
+        <div className="flex justify-center gap-x-2 items-start w-full">
+          <button onClick={toggleDirectionPage} className="p-2 rounded-full shadow bg-white" ><IoArrowBackSharp size={20} /></button>
+          <div className="flex justify-center gap-x-1">
             <div className="flex flex-col justify-center items-center gap-y-2">
               <FaDotCircle size={15} color="blue" />
               <PiDotsThreeVertical size={20} />
               <IoLocationSharp size={20} color="red" />
             </div>
-            <div className="flex flex-col w-full gap-y-3">
-              <input type="text" className="border rounded-md border-black bg-white text-lg px-3 py-2" placeholder="Your Location" disabled />
-              <input type="text" className="border rounded-md border-black bg-white text-lg px-3 py-2" placeholder="Choose Destination" />
+            <div className="flex relative flex-col w-full gap-y-3">
+              <input type="text" className="border rounded-md border-black bg-white text-lg px-3 py-2 w-full" placeholder="Select Your Location" />
+             { <div className="absolute top-12 border border-black bg-white rounded h-[300px] p-2 w-full">
+                <div className="w-full overflow-y-scroll h-full p-2">
+                  {Object.keys(departments).map((departmentKey) => (
+              <>
+                      {Object.keys(departments[departmentKey]).map((floorKey) => (
+                        <>
+                          {departments[departmentKey][floorKey].map((room, index) => (
+                            <div key={index} className="w-full p-1">{room.name}</div>
+                          ))}
+                        </>
+                      ))}
+                </>
+                  ))}
+
+                </div>
+              </div>}
+              <input type="text" className="border rounded-md border-black bg-white text-lg px-3 py-2 w-full" placeholder="Choose Destination" />
             </div>
           </div>
-          <button onClick={toggleMenu} className="p-2 rounded-full shadow"><IoMenu size={20} /></button>
+          <button onClick={toggleMenu} className="p-2 rounded-full shadow bg-white"><IoMenu size={20} /></button>
         </div>
       </div>
       <Map onHomeClick={onHomeClick} toggleDirectionPage={toggleDirectionPage} />
