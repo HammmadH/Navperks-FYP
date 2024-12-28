@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+
 export default {
   content: [
     "./index.html",
@@ -32,5 +33,6 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [// Require only if you want to use FlyonUI JS component
+  ]
 }

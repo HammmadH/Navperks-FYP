@@ -24,33 +24,40 @@ export default function NavigateKiet({ onHomeClick }) {
   const [activeSection, setActiveSection] = useState(null);
   const [activeFloor, setActiveFloor] = useState(null);
   const menuRef = useRef(null);
+  const [locationSearch, setLocationSearch] = useState(false)
+  const [destinationSearch, setDestinationSearch] = useState(false);
+  const [locationSearchValue, setLocationSearchValue] = useState("");
+  const [destinationSearchValue, setDestinationSearchValue] = useState("")
+
+  
+
 
   const departments = {
     cocis: {
       // Add icon here
 
-      "Floor 1": [
+      "Floor1": [
         // { name: "Helmet Area", icon: <MdOutlineRoom size={20} /> },
         // { name: "IT Room", icon: <MdOutlineRoom size={20} />, x: 369.98, y: 632, height: 54.05, width: 87.61 },
         {
           name: "COCIS Accounts",
-          icon: <img src={accounts} height={20} width={20} />, x: 170.72, y: 686.79, height: 54.05, width: 87.61
+          icon: <img src={accounts} height={20} width={20} />, x: 170.72, y: 686.79, height: 54.05, width: 87.61, door: { x: 252, y: 693, height: 24, width: 11 }
         },
-        { name: "COCIS Examinations", icon: <FaBook size={20} />, x: 62.98, y: 578.69, height: 79, width: 89.98 },
-        { name: "Lab 1", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 387.43, height: 93.55, width: 89.98 },
-        { name: "Lab 2", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 289.73, height: 93.55, width: 89.98 },
-        { name: "Lab 3", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 422.78, height: 93.55, width: 89.98 },
-        { name: "Lab 4", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 325.07, height: 93.55, width: 89.98 },
-        { name: "Lab 5", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 228.4, height: 93.55, width: 89.98 },
-        { name: "Lab 6", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 131.73, height: 93.55, width: 89.98 },
-        { name: "DLD Lab", icon: <MdOutlineRoom size={20} />, x: 61.8, y: 131.73, height: 152.8, width: 89.98 },
-        { name: "Server Room", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 483.06, height: 44.7, width: 89.98 },
-        { name: "Sports Room", icon: <MdOutlineSportsEsports size={20} />, x: 62.98, y: 530.88, height: 44.7, width: 89.98 },
+        { name: "COCIS Examinations", icon: <FaBook size={20} />, x: 62.98, y: 578.69, height: 79, width: 89.98, door: { x: 146, y: 585, height: 24, width: 11 } },
+        { name: "Lab 1", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 387.43, height: 93.55, width: 89.98, door: { x: 146, y: 391, height: 24, width: 11 } },
+        { name: "Lab 2", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 289.73, height: 93.55, width: 89.98, door: { x: 146, y: 356, height: 24, width: 11 } },
+        { name: "Lab 3", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 422.78, height: 93.55, width: 89.98, door: { x: 237, y: 425, height: 24, width: 11 } },
+        { name: "Lab 4", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 325.07, height: 93.55, width: 89.98, door: { x: 237, y: 390, height: 24, width: 11 } },
+        { name: "Lab 5", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 228.4, height: 93.55, width: 89.98, door: { x: 237, y: 232, height: 24, width: 11 } },
+        { name: "Lab 6", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 131.73, height: 93.55, width: 89.98, door: { x: 237, y: 198, height: 24, width: 11 } },
+        { name: "DLD Lab", icon: <MdOutlineRoom size={20} />, x: 61.8, y: 131.73, height: 152.8, width: 89.98, door: { x: 145, y: 253, height: 24, width: 11 } },
+        { name: "Server Room", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 483.06, height: 44.7, width: 89.98, door: { x: 156, y: 497, height: 18, width: 11 } },
+        { name: "Sports Room", icon: <MdOutlineSportsEsports size={20} />, x: 62.98, y: 530.88, height: 44.7, width: 89.98, door: { x: 147, y: 543, height: 18, width: 11 } },
         // { name: "Notice Board", icon: <GiSofa size={20} /> },
-        { name: "Faculty Washroom 1", icon: <FaBook size={20} />, x: 60.61, y: 88.08, height: 39.5, width: 89.98 },
-        { name: "Faculty Washroom 2", icon: <FaBook size={20} />, x: 233.47, y: 88.08, height: 39.5, width: 89.98 },
-        { name: "President", icon: <FaBook />, x: 62.98, y: 660.81, height: 79, width: 68.67 },
-        { name: "Washroom", icon: <FaBook />, x: 32.83, y: 702.38, height: 37.42, width: 34.33 }
+        { name: "Faculty Washroom 1", icon: <FaBook size={20} />, x: 60.61, y: 88.08, height: 39.5, width: 89.98, door: { x: 144, y: 125, height: 24, width: 11 } },
+        { name: "Faculty Washroom 2", icon: <FaBook size={20} />, x: 233.47, y: 88.08, height: 39.5, width: 89.98, door: { x: 238, y: 693, height: 24, width: 11 } },
+        { name: "President", icon: <FaBook />, x: 62.98, y: 660.81, height: 79, width: 68.67, door: { x: 125, y: 669, height: 24, width: 11 } },
+        { name: "Washroom", icon: <FaBook />, x: 32.83, y: 702.38, height: 37.42, width: 34.33, door: { x: 146, y: 702, height: 8, width: 18 } }
       ],
       "Floor 2": [
         { name: "ATM", icon: <FaMoneyCheck size={20} /> },
@@ -382,30 +389,56 @@ export default function NavigateKiet({ onHomeClick }) {
               <IoLocationSharp size={20} color="red" />
             </div>
             <div className="flex relative flex-col w-full gap-y-3">
-              <input type="text" className="border rounded-md border-black bg-white text-lg px-3 py-2 w-full" placeholder="Select Your Location" />
-             { <div className="absolute top-12 border border-black bg-white rounded h-[300px] p-2 w-full">
+              <input type="text" onClick={() => { setLocationSearch(true) }} value={locationSearchValue.name} className="border rounded-md border-black bg-white text-lg px-3 py-2 w-full" placeholder="Select Your Location" />
+              {locationSearch && <div className="absolute top-12 border border-black bg-white rounded h-[300px] p-2 w-full">
                 <div className="w-full overflow-y-scroll h-full p-2">
+                  <div onClick={() => {
+                    setLocationSearch(false)
+                    setLocationSearchValue({ name: "Your Location" })
+                  }} className="w-full p-1">Your Location</div>
                   {Object.keys(departments).map((departmentKey) => (
-              <>
+                    <>
                       {Object.keys(departments[departmentKey]).map((floorKey) => (
                         <>
                           {departments[departmentKey][floorKey].map((room, index) => (
-                            <div key={index} className="w-full p-1">{room.name}</div>
+                            <div onClick={() => {
+                              setLocationSearch(false)
+                              setLocationSearchValue(room)
+                            }} key={index} className="w-full p-1">{room.name}</div>
                           ))}
                         </>
                       ))}
-                </>
+                    </>
                   ))}
 
                 </div>
               </div>}
-              <input type="text" className="border rounded-md border-black bg-white text-lg px-3 py-2 w-full" placeholder="Choose Destination" />
+              <input type="text" onClick={() => { setDestinationSearch(true) }} value={destinationSearchValue.name} className="border rounded-md border-black bg-white text-lg px-3 py-2 w-full" placeholder="Choose Your Destination" />
+              {destinationSearch && <div className="absolute top-28 border border-black bg-white rounded h-[300px] p-2 w-full">
+                <div className="w-full overflow-y-scroll h-full p-2">
+                  {Object.keys(departments).map((departmentKey) => (
+                    <>
+                      {Object.keys(departments[departmentKey]).map((floorKey) => (
+                        <>
+                          {departments[departmentKey][floorKey].map((room, index) => (
+                            <div onClick={() => {
+                              setDestinationSearch(false)
+                              setDestinationSearchValue(room)
+                            }} key={index} className="w-full p-1">{room.name}</div>
+                          ))}
+                        </>
+                      ))}
+                    </>
+                  ))}
+
+                </div>
+              </div>}
             </div>
           </div>
           <button onClick={toggleMenu} className="p-2 rounded-full shadow bg-white"><IoMenu size={20} /></button>
         </div>
       </div>
-      <Map onHomeClick={onHomeClick} toggleDirectionPage={toggleDirectionPage} />
+      <Map onHomeClick={onHomeClick} toggleDirectionPage={toggleDirectionPage} departments={departments} />
     </div>
   );
 }

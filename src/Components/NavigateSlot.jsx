@@ -30,7 +30,7 @@ const NavigateSlot = ({ onSelect }) => {
   const progressValue = (remainingTime / totalTime) * 100;
 
   return (
-    <div className="h-[85vh] w-full flex pb-8 flex-col justify-around items-center">
+    <div className="h-[85vh] w-full flex pb-8 flex-col justify-between items-center">
       <ZoneNav selectedZone={bookedSlot ? bookedSlot[1] : 0} zones={zones} />
       <div className="flex justify-center flex-col my-4 items-center">
         <div className="flex justify-center items-center rounded-full w-60 h-full">
