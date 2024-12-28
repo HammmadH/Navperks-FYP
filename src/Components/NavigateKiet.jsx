@@ -1,17 +1,16 @@
 import { useState, useEffect, useRef } from "react";
-import { IoHomeOutline } from "react-icons/io5";
-import { HiOutlineMenu } from "react-icons/hi";
-import { IoIosSearch } from "react-icons/io";
 import { RxCross2 } from "react-icons/rx";
+import { FaLocationDot } from "react-icons/fa6";
+import { MdOutlineSportsEsports, MdOutlineRoom } from "react-icons/md";
+import { GiSofa } from "react-icons/gi"; // Add more icons
+import { IoArrowBackSharp, IoMenu, IoLocationSharp } from "react-icons/io5";
+import { PiDotsThreeVertical } from "react-icons/pi";
 import {
   FaBuilding,
-  FaPrayingHands,
-  FaUserFriends,
   FaMoneyCheck,
   FaBook,
+  FaDotCircle
 } from "react-icons/fa";
-import { MdOutlineSportsEsports, MdOutlineRoom } from "react-icons/md";
-import { GiFactory, GiSofa } from "react-icons/gi"; // Add more icons
 import Map from "./Map";
 import gcr from "../assets/gcr.png";
 import accounts from "../assets/accounts.png";
@@ -20,88 +19,101 @@ import pray from "../assets/pray.png";
 
 export default function NavigateKiet({ onHomeClick }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDirectionPageOpen, setIsDirectionPageOpen] = useState(false);
   const [isVerticalMenuOpen, setIsVerticalMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
   const [activeFloor, setActiveFloor] = useState(null);
   const menuRef = useRef(null);
+  const [locationSearch, setLocationSearch] = useState(false)
+  const [destinationSearch, setDestinationSearch] = useState(false);
+  const [locationSearchValue, setLocationSearchValue] = useState("");
+  const [destinationSearchValue, setDestinationSearchValue] = useState("")
+
+  
+
 
   const departments = {
     cocis: {
       // Add icon here
-      floors: {
-        "Floor 1": [
-          { name: "Helmet Area", icon: <MdOutlineRoom size={20} /> },
-          { name: "IT Room", icon: <MdOutlineRoom size={20} /> },
-          {
-            name: "COCIS Accounts",
-            icon: <img src={accounts} height={20} width={20} />,
-          },
-          { name: "COCIS Examinations", icon: <FaBook size={20} /> },
-          { name: "Sports Room", icon: <MdOutlineSportsEsports size={20} /> },
-          { name: "Lab 1", icon: <MdOutlineRoom size={20} /> },
-          { name: "Lab 2", icon: <MdOutlineRoom size={20} /> },
-          { name: "Lab 3", icon: <MdOutlineRoom size={20} /> },
-          { name: "DLD Lab", icon: <MdOutlineRoom size={20} /> },
-          { name: "Notice Board", icon: <GiSofa size={20} /> },
-        ],
-        "Floor 2": [
-          { name: "ATM", icon: <FaMoneyCheck size={20} /> },
-          { name: "Faculty Room", icon: <FaBuilding size={20} /> },
-          { name: "HODS Room", icon: <FaBuilding size={20} /> },
-          { name: "COCIS Academics", icon: <FaBook size={20} /> },
-          { name: "Notice Board", icon: <GiSofa size={20} /> },
-          { name: "Room 1B", icon: <MdOutlineRoom size={20} /> },
-          { name: "Room 2B", icon: <MdOutlineRoom size={20} /> },
-          { name: "Room 3B", icon: <MdOutlineRoom size={20} /> },
-          { name: "GCR", icon: <img src={gcr} height={20} width={20} /> }, // Girls Common Room
-        ],
-      },
+
+      "Floor1": [
+        // { name: "Helmet Area", icon: <MdOutlineRoom size={20} /> },
+        // { name: "IT Room", icon: <MdOutlineRoom size={20} />, x: 369.98, y: 632, height: 54.05, width: 87.61 },
+        {
+          name: "COCIS Accounts",
+          icon: <img src={accounts} height={20} width={20} />, x: 170.72, y: 686.79, height: 54.05, width: 87.61, door: { x: 252, y: 693, height: 24, width: 11 }
+        },
+        { name: "COCIS Examinations", icon: <FaBook size={20} />, x: 62.98, y: 578.69, height: 79, width: 89.98, door: { x: 146, y: 585, height: 24, width: 11 } },
+        { name: "Lab 1", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 387.43, height: 93.55, width: 89.98, door: { x: 146, y: 391, height: 24, width: 11 } },
+        { name: "Lab 2", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 289.73, height: 93.55, width: 89.98, door: { x: 146, y: 356, height: 24, width: 11 } },
+        { name: "Lab 3", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 422.78, height: 93.55, width: 89.98, door: { x: 237, y: 425, height: 24, width: 11 } },
+        { name: "Lab 4", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 325.07, height: 93.55, width: 89.98, door: { x: 237, y: 390, height: 24, width: 11 } },
+        { name: "Lab 5", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 228.4, height: 93.55, width: 89.98, door: { x: 237, y: 232, height: 24, width: 11 } },
+        { name: "Lab 6", icon: <MdOutlineRoom size={20} />, x: 232.28, y: 131.73, height: 93.55, width: 89.98, door: { x: 237, y: 198, height: 24, width: 11 } },
+        { name: "DLD Lab", icon: <MdOutlineRoom size={20} />, x: 61.8, y: 131.73, height: 152.8, width: 89.98, door: { x: 145, y: 253, height: 24, width: 11 } },
+        { name: "Server Room", icon: <MdOutlineRoom size={20} />, x: 62.98, y: 483.06, height: 44.7, width: 89.98, door: { x: 156, y: 497, height: 18, width: 11 } },
+        { name: "Sports Room", icon: <MdOutlineSportsEsports size={20} />, x: 62.98, y: 530.88, height: 44.7, width: 89.98, door: { x: 147, y: 543, height: 18, width: 11 } },
+        // { name: "Notice Board", icon: <GiSofa size={20} /> },
+        { name: "Faculty Washroom 1", icon: <FaBook size={20} />, x: 60.61, y: 88.08, height: 39.5, width: 89.98, door: { x: 144, y: 125, height: 24, width: 11 } },
+        { name: "Faculty Washroom 2", icon: <FaBook size={20} />, x: 233.47, y: 88.08, height: 39.5, width: 89.98, door: { x: 238, y: 693, height: 24, width: 11 } },
+        { name: "President", icon: <FaBook />, x: 62.98, y: 660.81, height: 79, width: 68.67, door: { x: 125, y: 669, height: 24, width: 11 } },
+        { name: "Washroom", icon: <FaBook />, x: 32.83, y: 702.38, height: 37.42, width: 34.33, door: { x: 146, y: 702, height: 8, width: 18 } }
+      ],
+      "Floor 2": [
+        { name: "ATM", icon: <FaMoneyCheck size={20} /> },
+        { name: "Faculty Room", icon: <FaBuilding size={20} /> },
+        { name: "HODS Room", icon: <FaBuilding size={20} /> },
+        { name: "COCIS Academics", icon: <FaBook size={20} /> },
+        { name: "Notice Board", icon: <GiSofa size={20} /> },
+        { name: "Room 1B", icon: <MdOutlineRoom size={20} /> },
+        { name: "Room 2B", icon: <MdOutlineRoom size={20} /> },
+        { name: "Room 3B", icon: <MdOutlineRoom size={20} /> },
+        { name: "GCR", icon: <img src={gcr} height={20} width={20} /> }, // Girls Common Room
+      ],
     },
     coms: {
-      // Example icon for COMS
-      floors: {
-        "Floor 1": [
-          { name: "Helmet Area", icon: <MdOutlineRoom size={20} /> },
-          { name: "Auditorium", icon: <MdOutlineRoom size={20} /> },
-          {
-            name: "COMS Accounts",
-            icon: <img src={accounts} height={20} width={20} />,
-          },
-          { name: "COMS Examinations", icon: <FaBook size={20} /> },
-          { name: "Room 1A", icon: <MdOutlineRoom size={20} /> },
-          { name: "Room 1B", icon: <MdOutlineRoom size={20} /> },
-          { name: "Room 1C", icon: <MdOutlineRoom size={20} /> },
-        ],
-        "Floor 2": [
-          { name: "Faculty Room", icon: <FaBuilding size={20} /> },
-          { name: "HODS Room", icon: <FaBuilding size={20} /> },
-          { name: "COMS Academics", icon: <FaBook size={20} /> },
-          { name: "Notice Board", icon: <GiSofa size={20} /> },
-          {
-            name: "Library",
-            icon: <img src={library} height={20} width={20} />,
-          },
-          {
-            name: "Prayer Area",
-            icon: <img src={pray} height={20} width={20} />,
-          },
-        ],
-        "Floor 3": [
-          { name: "Cafeteria", icon: <GiSofa size={20} /> },
-          { name: "Foosball", icon: <MdOutlineSportsEsports size={20} /> },
-          { name: "Table Tennis", icon: <MdOutlineSportsEsports size={20} /> },
-          { name: "Carrom", icon: <MdOutlineSportsEsports size={20} /> },
-          { name: "Sitting Area", icon: <GiSofa size={20} /> },
-        ],
-      },
+
+      "Floor 1": [
+        { name: "Helmet Area", icon: <MdOutlineRoom size={20} /> },
+        { name: "Auditorium", icon: <MdOutlineRoom size={20} /> },
+        {
+          name: "COMS Accounts",
+          icon: <img src={accounts} height={20} width={20} />,
+        },
+        { name: "COMS Examinations", icon: <FaBook size={20} /> },
+        { name: "Room 1A", icon: <MdOutlineRoom size={20} /> },
+        { name: "Room 1B", icon: <MdOutlineRoom size={20} /> },
+        { name: "Room 1C", icon: <MdOutlineRoom size={20} /> },
+      ],
+      "Floor 2": [
+        { name: "Faculty Room", icon: <FaBuilding size={20} /> },
+        { name: "HODS Room", icon: <FaBuilding size={20} /> },
+        { name: "COMS Academics", icon: <FaBook size={20} /> },
+        { name: "Notice Board", icon: <GiSofa size={20} /> },
+        {
+          name: "Library",
+          icon: <img src={library} height={20} width={20} />,
+        },
+        {
+          name: "Prayer Area",
+          icon: <img src={pray} height={20} width={20} />,
+        },
+      ],
+      "Floor 3": [
+        { name: "Cafeteria", icon: <GiSofa size={20} /> },
+        { name: "Foosball", icon: <MdOutlineSportsEsports size={20} /> },
+        { name: "Table Tennis", icon: <MdOutlineSportsEsports size={20} /> },
+        { name: "Carrom", icon: <MdOutlineSportsEsports size={20} /> },
+        { name: "Sitting Area", icon: <GiSofa size={20} /> },
+      ],
     },
   };
 
   const facilities = {
     "Prayer Area": { department: "coms", floor: "Floor 2" },
     "Girls' Common Room": { department: "cocis", floor: "Floor 2" },
-    Accounts: { department: "cocis", floor: "Floor 1" },
-    Library: { department: "coms", floor: "Floor 2" },
+    "Accounts": { department: "cocis", floor: "Floor 1" },
+    "Library": { department: "coms", floor: "Floor 2" },
   };
 
   const toggleMenu = () => {
@@ -112,6 +124,10 @@ export default function NavigateKiet({ onHomeClick }) {
   const toggleVerticalMenu = () => {
     setIsVerticalMenuOpen(!isVerticalMenuOpen);
   };
+
+  const toggleDirectionPage = () => {
+    setIsDirectionPageOpen(!isDirectionPageOpen);
+  }
 
   const handleFacilityClick = (facility) => {
     const { department, floor } = facilities[facility];
@@ -151,26 +167,69 @@ export default function NavigateKiet({ onHomeClick }) {
 
   return (
     <div className="relative">
-      {/* Navigation Bar */}
-      <div className="flex fixed top-0 inset-x-0 w-full pb-2 pt-5 gap-x-10 px-3 justify-between items-center transition-all duration-300">
-        <IoHomeOutline
-          onClick={onHomeClick}
-          color="#17502d"
-          className="bg-white"
-          size={35}
-        />
-        <div className="relative">
-          <IoIosSearch
-            size={35}
-            className="absolute text-gray-400 top-1 left-1"
+      {/* Search Bar */}
+      <div className=" fixed top-0 inset-x-0 w-full pt-5 pb-2 gap-x-10 px-3 bg-gray-100 transition-all duration-300">
+        <div className="relative w-full">
+          <FaLocationDot
+            size={25}
+            className="absolute text-gray-400 top-[10px] left-2"
           />
           <input
             type="text"
-            className="w-full border h-11 rounded-full py-1 pl-10"
-            placeholder="Search"
+            className="w-full border h-12 bg-white rounded-full py-1 px-10 text-lg"
+            placeholder="Search Here"
           />
+
+          <div
+            className="absolute top-2 right-2 cursor-pointer flex justify-center items-center w-[32px] h-[32px] rounded-full bg-[#2cc40d] text-white font-bold"
+            onClick={toggleMenu}
+          >
+            K
+          </div>
         </div>
-        <HiOutlineMenu size={35} onClick={toggleVerticalMenu} />
+        <div className="flex justify-start gap-x-2  overflow-x-scroll py-2">
+          <div onClick={() => handleDepartmentClick("cocis")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+            <FaBuilding
+              size={12}
+              title="COCIS Department"
+            />
+            <div className="text-center text-gray-700/75">COCIS</div>
+          </div>
+          <div onClick={() => handleDepartmentClick("coms")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+
+            <FaBuilding
+              size={12}
+              title="COMS Department"
+            />
+            <div className="text-center text-gray-700/75">COMS</div>
+          </div>
+          <div onClick={() => handleFacilityClick("Prayer Area")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+
+            <img src={pray} height={12} width={12}
+              title="Prayer Area"
+            />
+            <div className="text-center text-gray-700/75">Pray</div>
+          </div>
+          <div onClick={() => handleFacilityClick("Girls' Common Room")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+
+            <img src={gcr} height={12} width={12}
+              title="Girls' Common Room"
+            />
+            <div className="text-center text-gray-700/75">GCR</div>
+          </div>
+          <div onClick={() => handleFacilityClick("Accounts")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+            <img src={accounts} height={12} width={12}
+              title="Accounts"
+            />
+            <div className="text-center text-gray-700/75">Accounts</div>
+          </div>
+          <div onClick={() => handleFacilityClick("Library")} className="flex gap-x-1 text-[12px] px-3 py-1 items-center rounded-full shadow-sm bg-white text-black justify-center cursor-pointer">
+
+            <img src={library} height={12} width={12}
+              title="Library"
+            />
+            <div className="text-gray-700/75">Library</div>
+          </div></div>
       </div>
 
       {/* Vertical Navbar */}
@@ -317,7 +376,69 @@ export default function NavigateKiet({ onHomeClick }) {
         </div>
       </div>
 
-      <Map />
+      <div
+        className={`fixed top-0 inset-x-0 w-screen h-full z-30 bg-gray-100 text-black transform ${isDirectionPageOpen ? "translate-y-0" : "translate-y-full"
+          } transition-transform duration-700 ease-in-out py-5 px-2`}
+      >
+        <div className="flex justify-center gap-x-2 items-start w-full">
+          <button onClick={toggleDirectionPage} className="p-2 rounded-full shadow bg-white" ><IoArrowBackSharp size={20} /></button>
+          <div className="flex justify-center gap-x-1">
+            <div className="flex flex-col justify-center items-center gap-y-2">
+              <FaDotCircle size={15} color="blue" />
+              <PiDotsThreeVertical size={20} />
+              <IoLocationSharp size={20} color="red" />
+            </div>
+            <div className="flex relative flex-col w-full gap-y-3">
+              <input type="text" onClick={() => { setLocationSearch(true) }} value={locationSearchValue.name} className="border rounded-md border-black bg-white text-lg px-3 py-2 w-full" placeholder="Select Your Location" />
+              {locationSearch && <div className="absolute top-12 border border-black bg-white rounded h-[300px] p-2 w-full">
+                <div className="w-full overflow-y-scroll h-full p-2">
+                  <div onClick={() => {
+                    setLocationSearch(false)
+                    setLocationSearchValue({ name: "Your Location" })
+                  }} className="w-full p-1">Your Location</div>
+                  {Object.keys(departments).map((departmentKey) => (
+                    <>
+                      {Object.keys(departments[departmentKey]).map((floorKey) => (
+                        <>
+                          {departments[departmentKey][floorKey].map((room, index) => (
+                            <div onClick={() => {
+                              setLocationSearch(false)
+                              setLocationSearchValue(room)
+                            }} key={index} className="w-full p-1">{room.name}</div>
+                          ))}
+                        </>
+                      ))}
+                    </>
+                  ))}
+
+                </div>
+              </div>}
+              <input type="text" onClick={() => { setDestinationSearch(true) }} value={destinationSearchValue.name} className="border rounded-md border-black bg-white text-lg px-3 py-2 w-full" placeholder="Choose Your Destination" />
+              {destinationSearch && <div className="absolute top-28 border border-black bg-white rounded h-[300px] p-2 w-full">
+                <div className="w-full overflow-y-scroll h-full p-2">
+                  {Object.keys(departments).map((departmentKey) => (
+                    <>
+                      {Object.keys(departments[departmentKey]).map((floorKey) => (
+                        <>
+                          {departments[departmentKey][floorKey].map((room, index) => (
+                            <div onClick={() => {
+                              setDestinationSearch(false)
+                              setDestinationSearchValue(room)
+                            }} key={index} className="w-full p-1">{room.name}</div>
+                          ))}
+                        </>
+                      ))}
+                    </>
+                  ))}
+
+                </div>
+              </div>}
+            </div>
+          </div>
+          <button onClick={toggleMenu} className="p-2 rounded-full shadow bg-white"><IoMenu size={20} /></button>
+        </div>
+      </div>
+      <Map onHomeClick={onHomeClick} toggleDirectionPage={toggleDirectionPage} departments={departments} />
     </div>
   );
 }

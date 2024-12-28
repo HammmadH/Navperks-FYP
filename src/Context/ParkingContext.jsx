@@ -14,7 +14,8 @@ export const ParkingContextProvider = ({ children }) => {
     // Check if both values exist and are valid, otherwise set default to false
     return isParkedValue && bookedSlotValue ? JSON.parse(isParkedValue) : false;
   });
-  
+  const [remainingTime, setRemainingTime] = useState(0); // Timer state
+  const [timerRunning, setTimerRunning] = useState(false); 
   
   useEffect(() => {
     if(bookedSlot == null) localStorage.removeItem("bookedSlot")
@@ -25,7 +26,21 @@ export const ParkingContextProvider = ({ children }) => {
     localStorage.setItem("isParked", isParked);
   }, [isParked]);
 
+  useEffect(() => {
+    let timerInterval;
+    if (timerRunning && remainingTime > 0) {
+      timerInterval = setInterval(() => {
+        setRemainingTime((prev) => Math.max(prev - 1, 0));
+      }, 1000);
+    } else if (remainingTime === 0 && timerRunning) {
+      // Timer ends, reset localStorage
+      setBookedSlot(null);
+      setIsParked(false);
+      setTimerRunning(false);
+    }
 
+    return () => clearInterval(timerInterval);
+  }, [timerRunning, remainingTime, setBookedSlot, setIsParked]);
   const bookSlot = (slotCode) => {
     setIsParked(false);
     setBookedSlot(slotCode);
@@ -37,7 +52,7 @@ export const ParkingContextProvider = ({ children }) => {
   };
 
   return (
-    <ParkingContext.Provider value={{ bookedSlot, setBookedSlot, isParked , bookSlot , setIsParked }}>
+    <ParkingContext.Provider value={{ bookedSlot, setBookedSlot, isParked , bookSlot , setIsParked , remainingTime, setRemainingTime , timerRunning, setTimerRunning  }}>
       {children}
     </ParkingContext.Provider>
   );

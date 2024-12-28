@@ -6,32 +6,17 @@ import RadialSeparators from "./RadialSeparators";
 import useParking from "../Context/useParkingContext";
 
 const zones = [
-  { id: 1, label: "Floor 1" },
-  { id: 2, label: "Floor 2" },
-  { id: 3, label: "Floor 3" },
+  { id: 1, label: "FLOOR 1" },
+  { id: 2, label: "FLOOR 2" },
+  { id: 3, label: "FLOOR 3" },
 ];
 
 const NavigateSlot = ({ onSelect }) => {
-  const {bookedSlot , setBookedSlot , setIsParked , isParked } = useParking();
-  const [remainingTime, setRemainingTime] = useState(0); // Timer state
-  const [timerRunning, setTimerRunning] = useState(false); // To track if the timer is running
+  const { bookedSlot, setBookedSlot, setIsParked, isParked , remainingTime, setRemainingTime , timerRunning, setTimerRunning } = useParking();
+// To track if the timer is running
   const totalTime = 120; // Total time in seconds (2 minutes)
 
-  useEffect(() => {
-    let timerInterval;
-    if (timerRunning && remainingTime > 0) {
-      timerInterval = setInterval(() => {
-        setRemainingTime((prev) => Math.max(prev - 2, 0));
-      }, 2000);
-    } else if (remainingTime === 0 && timerRunning) {
-      // Timer ends, reset localStorage
-      setBookedSlot(null);
-      setIsParked(false);
-      setTimerRunning(false);
-    }
-
-    return () => clearInterval(timerInterval);
-  }, [timerRunning, remainingTime , setBookedSlot , setIsParked]);
+  
 
   const startTimer = () => {
     setRemainingTime(totalTime);
@@ -45,13 +30,13 @@ const NavigateSlot = ({ onSelect }) => {
   const progressValue = (remainingTime / totalTime) * 100;
 
   return (
-    <div className="h-[85vh] w-full flex pb-8 flex-col justify-around items-center">
+    <div className="h-[85vh] w-full flex pb-8 flex-col justify-between items-center">
       <ZoneNav selectedZone={bookedSlot ? bookedSlot[1] : 0} zones={zones} />
       <div className="flex justify-center flex-col my-4 items-center">
         <div className="flex justify-center items-center rounded-full w-60 h-full">
           <CircularProgressbarWithChildren
             value={progressValue}
-            text={remainingTime > 0 ? `${remainingTime}s` : isParked ? "Parked" : bookedSlot ? "Park" : "Free"}
+            text={remainingTime > 0 ? `` : isParked ? "Parked" : bookedSlot ? "Park" : "Free"}
             strokeWidth={8}
             styles={{
               trail: {
@@ -60,7 +45,7 @@ const NavigateSlot = ({ onSelect }) => {
               },
               path: {
                 strokeLinecap: "butt",
-                stroke: remainingTime > 0 ? "#ff4500" : "#2cc40d",
+                stroke: remainingTime > 0 ? "#2cc40d" : "#2cc40d",
               },
               text: {
                 fill: remainingTime > 0 ? "#ff4500" : "#2cc40d",
@@ -82,15 +67,15 @@ const NavigateSlot = ({ onSelect }) => {
       </div>
       <div className="flex flex-col gap-y-2 items-center">
         {bookedSlot ? (
-          <div className="p-4 flex flex-col items-center">
-            <div className="">YOUR SLOT CODE IS</div>
-            <div>{bookedSlot}</div>
+          <div className=" flex flex-col items-center">
+            <div className="text-xl font-bold">YOUR SLOT CODE IS</div>
+            <div className="text-2xl font-bold">{bookedSlot}</div>
           </div>
         ) : (
           ""
-        )}{remainingTime>0 ? (
-          <div className="p-4 flex flex-col items-center text-red-600">
-            <div>{remainingTime}</div>
+        )}{remainingTime > 0 ? (
+          <div className="flex flex-col items-center text-[#17502d]">
+            <div className="text-2xl font-bold">{remainingTime} s</div>
           </div>
         ) : (
           ""
@@ -113,46 +98,46 @@ const Button = ({ bookedSlot, isParked, onSelect, startTimer, stopTimer, timerRu
   if (!bookedSlot) {
     return (
       <button
-        className="bg-[#2cc40d] rounded-xl text-white text-xl"
+        className="bg-[#2cc40d] w-40 rounded-xl text-white text-xl py-2 font-semibold cursor-pointer"
         onClick={() => {
           onSelect("bookSlot");
         }}
       >
-        Book Slot
+        BOOK SLOT 
       </button>
     );
   } else if (bookedSlot && !isParked) {
     return (
-      <button className="bg-[#2cc40d] rounded-full text-white text-xl">
-        Navigate Slot
+      <button className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer">
+        NAVIGATE SLOT
       </button>
     );
   } else if (bookedSlot && isParked) {
     if (!timerRunning) {
       return (
         <button
-          className="bg-[#ff4500] rounded-full text-white text-xl"
+          className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer" 
           onClick={startTimer}
         >
-          Free Slot
+          FREE SLOT
         </button>
       );
     } else if (timerRunning && remainingTime > 0) {
       return (
         <button
-          className="bg-[#ff4500] rounded-full text-white text-xl"
+          className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer"
           onClick={stopTimer}
         >
-          Stop
+          STOP
         </button>
       );
     } else {
       return (
         <button
-          className="bg-[#2cc40d] rounded-full text-white text-xl"
+          className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer"
           onClick={startTimer}
         >
-          Free Now
+          FREE NOW
         </button>
       );
     }
@@ -164,24 +149,25 @@ export default NavigateSlot;
 function ZoneNav({ selectedZone, zones, className, ...props }) {
   return (
     <nav
-      className={`relative flex items-center border-b sha justify-center gap-4 px-4 py-2 text-center ${className || ""}`}
+      className={`relative flex items-center w-full shadow-xl bg-gray-100 justify-center gap-4 px-4 py-2 text-center ${className || ""}`}
       {...props}
     >
       {zones.map((zone) => (
         <div
           key={zone.id}
-          className={`relative flex h-32 w-16 flex-col items-center justify-center transition-all ${selectedZone == zone.id
-            ? "before:absolute before:inset-0 z-10 before:rounded-[40px_40px_20px_20px] before:bg-[#2cc40d]"
-            : ""
+          className={`relative flex h-32 w-16 flex-col items-center justify-center transition-all before:absolute before:inset-0 z-10 before:rounded-[40px_40px_20px_20px] ${selectedZone == zone.id
+            ? " before:bg-[#2cc40d]"
+            : "before:bg-gray-300"
             }`}
         >
-          <div className="flex flex-col items-center rotate-[-90deg]">
+          <div className="flex flex-col relative items-center rotate-[-90deg]">
             <span
-              className={`text-lg font-bold whitespace-nowrap ${selectedZone === zone.id ? "text-white" : "text-gray-900"
+              className={`text-lg font-bold whitespace-nowrap ${selectedZone == zone.id ? "text-white" : "text-black"
                 }`}
             >
               {zone.label}
             </span>
+
           </div>
         </div>
       ))}
