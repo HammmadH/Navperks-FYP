@@ -17,7 +17,7 @@ export default function Map({ onHomeClick, toggleDirectionPage, departments }) {
   const smoothingFactor = 0.3; // This controls how much the new data should influence the result
   const movementThreshold = 0.00005; // Minimum change in position before updating (this helps to ignore tiny fluctuations)
   const xMinMovementThreshold = 3;
-  const xMaxMovementThreshold = 15; // Minimum change in x (scaled) position before updating (helps control x movement)
+  const xMaxMovementThreshold = 17; // Minimum change in x (scaled) position before updating (helps control x movement)
   const yMinMovementThreshold = 2;
   const yMaxMovementThreshold = 10;
   const [lastLatitude, setLastLatitude] = useState(null);
