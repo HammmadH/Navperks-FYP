@@ -32,7 +32,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <main>
+    <main className="bg-gray-100 overflow-y-scroll">
       {adminData ? (
         <>
          { renderComponent()}

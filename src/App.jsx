@@ -7,7 +7,7 @@ import BookSlot from "./Components/BookSlot";
 import NavigateKiet from "./Components/NavigateKiet";
 import NavigateSlot from "./Components/NavigateSlot";
 import BottomBar from "./Components/BottomBar";
-import LocationPrompt from './Components/LocationPrompt';
+// import LocationPrompt from './Components/LocationPrompt';
 
 function App() {
   const [step, setStep] = useState(1);
@@ -77,12 +77,10 @@ function App() {
   };
 
   return (
-    <div className='h-full overflow-none [::webkit-scrollbar]:0'>
+    <div className='h-full overflow-none bg-white [::webkit-scrollbar]:0'>
       {step === 1 && <FirstComponent />}
       {step === 2 && <SecondComponent onContinue={handleContinue} />}
-      {step === 3 && <LocationPrompt />}
       {step === 3 && renderComponent()}
-      {/* Show BottomBar on all components, but with scroll behavior only on MainComponent */}
       {step === 3 && showBottomBar && (
         <BottomBar
           selectedComponent={selectedComponent}

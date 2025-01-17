@@ -5,16 +5,6 @@ import vertical from "../assets/car.png";
 import { FaLongArrowAltUp } from "react-icons/fa";
 import useParking from "../Context/useParkingContext";
 
-<style jsx>{`
-  @keyframes vanish {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(-40vh); opacity: 0; }
-  }
-  .animate-car-vanish {
-    animation: vanish 3s forwards;
-  }
-`}</style>
-
 export default function BookSlot({ onSelect }) {
   const {bookedSlot, bookSlot} = useParking();
   const [mySlots, setMySlots] = useState([]);
@@ -22,7 +12,6 @@ export default function BookSlot({ onSelect }) {
   const [animatingSlot, setAnimatingSlot] = useState(null);
 
   useEffect(() => {
-    // Retrieve slots from local storage or initialize them
     let slots = JSON.parse(localStorage.getItem("slots")) || [];
     if (slots.length === 0) {
       slots = [
