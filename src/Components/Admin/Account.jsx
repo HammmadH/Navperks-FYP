@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5"; // Import icons
 import { RxCross2 } from "react-icons/rx";
-import { useAdmin } from "../../Context/AdminContext";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -16,29 +15,17 @@ import {
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
 
-function Account() {
-  const { adminData, updateUsername, updatePassword, rushedDay, rushedHour } =
-    useAdmin();
+function Account({adminData, updatePassword, rushedDay, rushedHour}) {
   const [isEditAccountDetailsOpen, setIsEditAccountDetailsOpen] =
     useState(false);
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [errors, setErrors] = useState({
-    username: "",
     password: "",
     newPassword: "",
   });
-  const validateUsername = () => {
-    const newErrors = { username: "" };
-    if (!username) {
-      newErrors.username = "Username is required.";
-    }
-    setErrors(newErrors);
-    return Object.values(newErrors).every((error) => error === "");
-  };
 
   const validatePasswords = () => {
     const newErrors = { password: "", newPassword: "" };
@@ -59,12 +46,6 @@ function Account() {
     return Object.values(newErrors).every((error) => error === "");
   };
 
-  const updateUsernameHandler = async (event) => {
-    event.preventDefault();
-    if (!validateUsername()) return;
-
-    updateUsername({ username, password });
-  };
 
   const updatePasswordHandler = async (event) => {
     event.preventDefault();
@@ -183,60 +164,17 @@ function Account() {
         className={`fixed top-0 inset-x-0 w-screen h-full   z-50 bg-white text-black transform ${isEditAccountDetailsOpen ? "translate-y-0" : "translate-y-full"
           } transition-transform duration-700 ease-in-out`}
       >
-        <div className="w-full h-full py-5">
+        <div className="w-full h-full">
 
           <RxCross2
             size={40}
-            className="absolute top-5 right-5 rounded-full bg-gray-100 p-2"
+            className="absolute top-5 right-5 mt-5  rounded-full bg-gray-100 p-2"
             onClick={() => {
               setIsEditAccountDetailsOpen(false);
             }}
           />
-          <section className="bg-white flex flex-col items-center justify-around h-full pb-14">
-            <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto w-full sm:max-w-md">
-              <div className="w-full bg-white rounded-lg shadow  ">
-                <div className="p-6 space-y-4 sm:space-y-6">
-                  <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 ">
-                    Update your Username
-                  </h1>
-                  <form
-                    className="space-y-4 sm:space-y-6"
-                    onSubmit={updateUsernameHandler}
-                    noValidate
-                  >
-                    <div>
-                      <label
-                        htmlFor="text"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Your Username
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-[#17502d] focus:border-[#17502d] block w-full p-2.5 "
-                        placeholder={adminData?.username || "Enter your username"}
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                      />
-                      {errors.username && (
-                        <p className="mt-1 text-sm bg-red-50 text-red-600 dark:bg-red-900 dark:text-red-400 px-2 py-1 rounded-lg shadow-md">
-                          {errors.username}
-                        </p>
-                      )}
-                    </div>
-                    {/* Submit Button */}
-                    <button
-                      type="submit"
-                      className="w-full text-white bg-[#2cc40d] focus:ring-4 focus:outline-none focus:ring-[#2cc40d] font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-                    >
-                      Update Username
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </div>
+          <section className="bg-gray-100 flex flex-col items-center justify-around h-full pb-14">
+          
             <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto w-full sm:max-w-md">
               <div className="w-full bg-white rounded-lg shadow dark:border">
                 <div className="p-6 space-y-4 sm:space-y-6">

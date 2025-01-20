@@ -168,7 +168,7 @@ export default function BookSlot({ onSelect }) {
         </div>
 
         {/* Spacer Column */}
-        <div className="flex relative flex-col gap-y-4 justify-between items-center h-full pt-32 relative">
+        <div className="flex relative flex-col gap-y-4 justify-between items-center h-full pt-32 ">
           {/* Free Slots Information */}
           <div className="flex flex-col justify-center items-center h-[100%] text-gray-200 text-3xl font-extrabold -rotate-90 p-4">
             <div>
@@ -219,12 +219,12 @@ export default function BookSlot({ onSelect }) {
         {/* Even Slots */}
         <div className="py-2 border-t border-b border-r border-dotted border-gray-400">
           {/* Empty Slot (Above Even Slots) */}
-          <div className="relative h-14 mb-4 cursor-pointer p-4 rounded-ss-full shadow bg-gray-100">
+          <div className="relative mr-2 h-14 mb-4 cursor-pointer p-4 rounded-ss-full shadow bg-gray-100">
 
           </div>
 
           {/* Locked Slot (Above Even Slots) */}
-          <div className="relative  h-14 mb-4">
+          <div className="relative mr-2  h-14 mb-4">
             <div className="cursor-pointer p-4 rounded shadow bg-gray-200">
               <div>Locked</div>
             </div>
@@ -237,7 +237,7 @@ export default function BookSlot({ onSelect }) {
               <div key={slot.id} className="relative mb-4 h-14">
                 <div
                   onClick={() => handleSlotClick(slot)}
-                  className={`cursor-pointer h-full ml-2 flex  rounded `}
+                  className={`cursor-pointer h-full mr-2 flex  rounded `}
                 >
                   {slot.reserved ? <img src={Car} className="m-auto rotate-180" /> : <div className="m-auto">Available</div>}
                 </div>
@@ -247,14 +247,14 @@ export default function BookSlot({ onSelect }) {
             ))}
 
           {/* Locked Slot (Below Even Slots) */}
-          <div className="relative mb-4">
+          <div className="relative mr-2 mb-4">
             <div className="cursor-pointer p-4 rounded h-full shadow bg-gray-200">
               <div>Locked</div>
             </div>
           </div>
 
           {/* Empty Slot (Below Even Slots) */}
-          <div className="relative cursor-pointer p-4 rounded-es-full h-14 shadow bg-gray-100">
+          <div className="relative mr-2 cursor-pointer p-4 rounded-es-full h-14 shadow bg-gray-100">
             <div className="">
             </div>
           </div>

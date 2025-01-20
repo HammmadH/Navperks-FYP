@@ -2,38 +2,44 @@ import { useState, useEffect } from "react";
 import Logo from "../../assets/Logo.jpg";
 import { RxCross2 } from "react-icons/rx";
 import { IoMdAdd } from "react-icons/io";
-import { useAdmin } from "../../Context/AdminContext";
+import { BsThreeDotsVertical } from "react-icons/bs";
 
-export default function Home({ onSelect }) {
-  const { announcements, setAnnouncements } = useAdmin();
+export default function Home({ onSelect, announcements, handleAdd, handleEdit, handleDelete }) {
+
   const [isAnnouncementContainerOpen, setIsAnnouncementContainerOpen] =
     useState(false);
-  const [text, setText] = useState(
-    "There is no any event or notice for now in KIET."
-  );
-  const [work, setWork] = useState(null);
+  const [work, setWork] = useState("add");
+  const [initialAnnouncement, setInitialAnnouncement] = useState("")
+  const [openTooltip, setOpenTooltip] = useState(null);
+  const [id, setId] = useState(0)
 
-  const handleAdd = (announcement) => {
-    alert(announcement)
-  }
-  const handleEdit = (id) => {
-    const announcementToEdit = announcements.find((a) => a.id === id);
-    const updatedAnnouncement = prompt(
-      "Edit the announcement:",
-      announcementToEdit.announcement
-    );
-    if (updatedAnnouncement) {
-      setAnnouncements((prev) =>
-        prev.map((a) =>
-          a.id === id ? { ...a, announcement: updatedAnnouncement } : a
-        )
-      );
+  const handleTooltipToggle = (id) => {
+    setOpenTooltip(openTooltip === id ? null : id);
+  };
+
+  const handleClickOutside = (event) => {
+    // Close the tooltip if clicking outside of it
+    if (!event.target.closest(".tooltip-container")) {
+      setOpenTooltip(null);
     }
   };
 
-  const handleDelete = (id) => {
-    setAnnouncements((prev) => prev.filter((a) => a.id !== id));
-  };
+  useEffect(() => {
+    document.addEventListener("click", handleClickOutside);
+
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  const submitAnnouncement = (id, announcement) => {
+    if (id === 0) {
+      handleAdd(announcement)
+    } else {
+      handleEdit(id, announcement)
+    }
+  }
 
   return (
     <div className="flex flex-col justify-start overflow-auto w-full h-full bg-white">
@@ -46,70 +52,80 @@ export default function Home({ onSelect }) {
           onClick={() => {
             setIsAnnouncementContainerOpen(true)
             setWork("add")
+            setInitialAnnouncement("")
           }
-
           }
           className="py-3 px-5 flex items-center gap-x-2 bg-[#2cc40d] text-white rounded-lg"
         >
           Add <IoMdAdd />
         </button></div>
-        {announcements
-          .sort((a, b) => a.sequence - b.sequence)
-          .map((a) => (
-            <div className="flex items-center px-5 py-2" key={a.id}>
+        <div className="py-2">
+          {announcements.map((a) => (
+            <div className="relative flex items-center justify-between px-5 py-2" key={a.id}>
+              {/* Announcement Text */}
+              <p className="text-lg text-[#17502d] font-semibold flex-1">
+                {a.announcement}
+              </p>
               {/* Three-dot Menu */}
-              <div className="relative group">
-                <button className="text-xl text-gray-500 focus:outline-none">
-                  •••
-                </button>
-                {/* Tooltip */}
-                <div className="absolute left-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
+              {openTooltip === a.id && (
+                <div className="absolute right-0 z-10 mr-2 w-32 bg-white border border-gray-300 rounded shadow-md">
                   <button
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => handleEdit(a.id)}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => {
+                      setIsAnnouncementContainerOpen(true)
+                      setWork("edit")
+                      setInitialAnnouncement(a.announcement)
+                      setId(a.id)
+                    }
+                    }
                   >
                     Edit
                   </button>
                   <button
-                    className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-gray-100"
-                    onClick={() => handleDelete(a.id)}
+                    className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+                    onClick={() => console.log(`Delete ${a.id}`)}
                   >
                     Delete
                   </button>
                 </div>
+              )}
+              <div className="relative tooltip-container">
+                <BsThreeDotsVertical
+                  size={30}
+                  className="flex-shrink-0 pl-2 cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent the event from bubbling to the document listener
+                    handleTooltipToggle(a.id);
+                  }}
+                />
+
               </div>
-              {/* Announcement Text */}
-              <p className="text-lg text-[#17502d] font-semibold ml-3">
-                {a.announcement}
-              </p>
             </div>
           ))}
+        </div>
+
+
       </div>
-      <Announcement isOpen={isAnnouncementContainerOpen} setIsAnnouncementContainerOpen={setIsAnnouncementContainerOpen} work={work} submitAnnouncement={handleAdd} />
+      <Announcement isOpen={isAnnouncementContainerOpen} setIsAnnouncementContainerOpen={setIsAnnouncementContainerOpen} work={work} initialAnnouncement={initialAnnouncement} submitAnnouncement={submitAnnouncement} id={id}/>
     </div>
   );
 }
 const Announcement = ({
   isOpen,
   setIsAnnouncementContainerOpen,
-  work = "add", // Defaults to "add" if no mode is passed
+  work,
   submitAnnouncement,
-  initialAnnouncement = "", // For editing, pass the current announcement text
+  initialAnnouncement,
+  id = 0,
 }) => {
-  const [announcement, setAnnouncement] = useState("");
-
-  // Reset announcement state when `work`, `initialAnnouncement`, or `isOpen` changes
-  useEffect(() => {
-    if (isOpen) {
-      setAnnouncement(work === "add" ? "" : initialAnnouncement);
-    }
-  }, [work, initialAnnouncement, isOpen]);
-
+  const [announcement, setAnnouncement] = useState(initialAnnouncement);
+useEffect(()=>{
+  setAnnouncement(initialAnnouncement)
+},[isOpen])
   return (
     <div
-      className={`fixed bottom-0 right-0 w-full sm:w-1/2 h-3/5 z-50 bg-white text-black transform ${
-        isOpen ? "translate-y-0" : "translate-y-full"
-      } transition-transform duration-700 ease-in-out`}
+      className={`fixed bottom-0 right-0 w-full sm:w-1/2 h-3/5 z-50 bg-white text-black transform ${isOpen ? "translate-y-0" : "translate-y-full"
+        } transition-transform duration-700 ease-in-out`}
     >
       <div className="w-full h-full py-5 relative">
         {/* Close Button */}
@@ -134,7 +150,7 @@ const Announcement = ({
                   className="space-y-4 sm:space-y-6"
                   onSubmit={(e) => {
                     e.preventDefault(); // Prevent page reload
-                    submitAnnouncement(announcement); // Pass the announcement text
+                    submitAnnouncement(id , announcement); // Pass the announcement text
                   }}
                   noValidate
                 >
@@ -143,7 +159,7 @@ const Announcement = ({
                     <textarea
                       rows={4}
                       className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-[#17502d] focus:border-[#17502d] block w-full p-2.5"
-                      placeholder="Your Announcement Goes Here"
+                      placeholder= "Your Announcement Goes Here"
                       value={announcement}
                       onChange={(e) => setAnnouncement(e.target.value)}
                     ></textarea>

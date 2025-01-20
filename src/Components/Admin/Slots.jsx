@@ -2,113 +2,13 @@ import React, { useEffect, useState } from 'react'
 import Car from "../../assets/car1.png";
 import vertical from "../../assets/car.png";
 import { FaLongArrowAltUp } from "react-icons/fa";
-import Swal from "sweetalert2";
-const initialSlots = [
-  {
-    floor: "Floor 1",
-    slots: [
-      { id: "F1-S1", reserved: false },
-      { id: "F1-S2", reserved: false },
-      { id: "F1-S3", reserved: false },
-      { id: "F1-S4", reserved: false },
-      { id: "F1-S5", reserved: false },
-      { id: "F1-S6", reserved: false },
-    ],
-  },
-  {
-    floor: "Floor 2",
-    slots: [
-      { id: "F2-S1", reserved: false },
-      { id: "F2-S2", reserved: false },
-      { id: "F2-S3", reserved: false },
-      { id: "F2-S4", reserved: false },
-      { id: "F2-S5", reserved: false },
-      { id: "F2-S6", reserved: false },
-    ],
-  },
-  {
-    floor: "Floor 3",
-    slots: [
-      { id: "F3-S1", reserved: false },
-      { id: "F3-S2", reserved: false },
-      { id: "F3-S3", reserved: false },
-      { id: "F3-S4", reserved: false },
-      { id: "F3-S5", reserved: false },
-      { id: "F3-S6", reserved: false },
-    ],
-  },
-];
 
 
-function Slots() {
-  const [mySlots, setMySlots] = useState(initialSlots)
-    const [selectedFloor, setSelectedFloor] = useState(0);
-    
-    const bookSlot = (floorIndex, slotIndex) => {
-      setMySlots((prevSlots) =>
-        prevSlots.map((floor, fIndex) =>
-          fIndex === floorIndex
-            ? {
-                ...floor,
-                slots: floor.slots.map((slot, sIndex) =>
-                  sIndex === slotIndex ? { ...slot, reserved: true } : slot
-                ),
-              }
-            : floor
-        )
-      );
-      Swal.fire("Success", "Slot booked successfully!", "success");
-    };
-    
-const emptySlot = (floorIndex, slotIndex) => {
-  setMySlots((prevSlots) =>
-    prevSlots.map((floor, fIndex) =>
-      fIndex === floorIndex
-        ? {
-            ...floor,
-            slots: floor.slots.map((slot, sIndex) =>
-              sIndex === slotIndex ? { ...slot, reserved: false } : slot
-            ),
-          }
-        : floor
-    )
-  );
-  Swal.fire("Success", "Slot emptied successfully!", "success");
-};
-
-
-const handleSlotClick = (floorIndex, slotIndex) => {
-  const selectedSlot = mySlots[floorIndex].slots[slotIndex];
-  if (selectedSlot.reserved) {
-    Swal.fire({
-      title: "Confirm",
-      text: "Do you want to empty this slot?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, empty it",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        emptySlot(floorIndex, slotIndex);
-      }
-    });
-  } else {
-    Swal.fire({
-      title: "Confirm",
-      text: "Do you want to book this slot?",
-      icon: "info",
-      showCancelButton: true,
-      confirmButtonText: "Yes, book it",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        bookSlot(floorIndex, slotIndex);
-      }
-    });
-  }
-};
+function Slots({mySlots,selectedFloor,setSelectedFloor, handleSlotClick}) {
 
     return (
     <div className="flex flex-col">
-      <div className="bg-slate-100 shadow-xl left-0 fixed z-20 w-full top-0">
+      <div className=" shadow-xl left-0 fixed z-20 w-full top-0">
         {/* Header */}
         <div className="flex py-4 px-3 items-center justify-center rounded">
           <div className="text-[#2cc40d] ml-2 font-extrabold text-2xl">
@@ -204,12 +104,12 @@ const handleSlotClick = (floorIndex, slotIndex) => {
         {/* Even Slots */}
         <div className="py-2 border-t border-b border-r border-dotted border-gray-400">
           {/* Empty Slot (Above Even Slots) */}
-          <div className="relative h-14 mb-4 cursor-pointer p-4 rounded-ss-full shadow bg-gray-100">
+          <div className="relative h-14 mb-4 mr-2 cursor-pointer p-4 rounded-ss-full shadow bg-gray-100">
 
           </div>
 
           {/* Locked Slot (Above Even Slots) */}
-          <div className="relative  h-14 mb-4">
+          <div className="relative mr-2 h-14 mb-4">
             <div className="cursor-pointer p-4 rounded shadow bg-gray-200">
               <div>Locked</div>
             </div>
@@ -221,7 +121,7 @@ const handleSlotClick = (floorIndex, slotIndex) => {
             .map((slot, index) => (
               <div key={slot.id} className="relative mb-4 h-14">
                 <div
-                  className={`cursor-pointer h-full ml-2 flex  rounded `}
+                  className={`cursor-pointer h-full mr-2 flex  rounded `}
                   onClick={() => handleSlotClick(selectedFloor, index)}
                 >
                   {slot.reserved ? <img src={Car} className="m-auto rotate-180" /> : <div className="m-auto">Available</div>}
@@ -232,14 +132,14 @@ const handleSlotClick = (floorIndex, slotIndex) => {
             ))}
 
           {/* Locked Slot (Below Even Slots) */}
-          <div className="relative mb-4">
+          <div className="relative mr-2 mb-4">
             <div className="cursor-pointer p-4 rounded h-full shadow bg-gray-200">
               <div>Locked</div>
             </div>
           </div>
 
           {/* Empty Slot (Below Even Slots) */}
-          <div className="relative cursor-pointer p-4 rounded-es-full h-14 shadow bg-gray-100">
+          <div className="relative cursor-pointer mr-2 p-4 rounded-es-full h-14 shadow bg-gray-100">
             <div className="">
             </div>
           </div>

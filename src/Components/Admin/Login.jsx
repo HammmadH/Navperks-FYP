@@ -1,13 +1,9 @@
 import React, { useState } from "react";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5"; // Import icons
 import Logo from "../../assets/Logo.jpg";
-import { useAdmin } from "../../Context/AdminContext";
-import { ToastContainer, toast } from 'react-toastify';
-  import 'react-toastify/dist/ReactToastify.css';
     
 
-function Login() {
-    const {  loginAsAdmin } = useAdmin();
+function Login({loginAsAdmin}) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -33,14 +29,12 @@ function Login() {
 
     loginAsAdmin({username, password})
     
-    toast.success("Logged in Successfully!", {
-      position: "top-right"
-    });
+   
   };
 
   return (
     <section className="bg-white min-h-screen flex items-center justify-center">
-      <ToastContainer />
+     
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto w-full sm:max-w-md">
         <a href="#" className="flex items-center mb-6 text-2xl font-semibold text-black ">
           <img className="w-8 h-8 mr-2" src={Logo} alt="logo" />

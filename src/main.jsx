@@ -5,7 +5,6 @@ import "./index.css";
 import App from "./App.jsx";
 import { ParkingContextProvider } from "./Context/ParkingContext.jsx";
 import Admin from "./Components/Admin/Admin.jsx";
-import { AdminProvider } from "./Context/AdminContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -17,9 +16,9 @@ createRoot(document.getElementById("root")).render(
           <Route
             path="admin"
             element={
-              <AdminProvider>
+              // <AdminProvider>
                 <Admin />
-              </AdminProvider>
+              // </AdminProvider>
             }
           />
         </Routes>
