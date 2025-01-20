@@ -8,39 +8,29 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
 import { useEffect } from "react";
+import { method } from "lodash";
 
 const initialSlots = [
   {
-    floor: "Floor 1",
+    floor: "COCIS",
     slots: [
-      { id: "F1-S1", reserved: false },
-      { id: "F1-S2", reserved: false },
-      { id: "F1-S3", reserved: false },
-      { id: "F1-S4", reserved: false },
-      { id: "F1-S5", reserved: false },
-      { id: "F1-S6", reserved: false },
+      { id: 1, code: "CS-S1", isFree: false },
+      { id: 2, code: "CS-S2", isFree: false },
+      { id: 3, code: "CS-S3", isFree: false },
+      { id: 4, code: "CS-S4", isFree: false },
+      { id: 5, code: "CS-S5", isFree: false },
+      { id: 6, code: "CS-S6", isFree: false },
     ],
   },
   {
-    floor: "Floor 2",
+    floor: "COMS",
     slots: [
-      { id: "F2-S1", reserved: false },
-      { id: "F2-S2", reserved: false },
-      { id: "F2-S3", reserved: false },
-      { id: "F2-S4", reserved: false },
-      { id: "F2-S5", reserved: false },
-      { id: "F2-S6", reserved: false },
-    ],
-  },
-  {
-    floor: "Floor 3",
-    slots: [
-      { id: "F3-S1", reserved: false },
-      { id: "F3-S2", reserved: false },
-      { id: "F3-S3", reserved: false },
-      { id: "F3-S4", reserved: false },
-      { id: "F3-S5", reserved: false },
-      { id: "F3-S6", reserved: false },
+      { id: 7, code: "CM-S1", isFree: false },
+      { id: 8, code: "CM-S2", isFree: false },
+      { id: 9, code: "CM-S3", isFree: false },
+      { id: 10, code: "CM-S4", isFree: false },
+      { id: 11, code: "CM-S5", isFree: false },
+      { id: 12, code: "CM-S6", isFree: false },
     ],
   },
 ];
@@ -50,7 +40,7 @@ const initialResponse = [
     id: 1,
     announcementText: "There isn't any event or announcement for now in KIET.",
   },
-]
+];
 
 const AdminDashboard = () => {
   const [adminData, setAdminData] = useState(
@@ -62,10 +52,19 @@ const AdminDashboard = () => {
   const [announcements, setAnnouncements] = useState(initialResponse);
 
   const [mySlots, setMySlots] = useState(initialSlots);
+
   const [selectedFloor, setSelectedFloor] = useState(0);
 
-  const [rushedDay, setRushedDay] = useState("Monday");
-  const [rushedHour, setRushedHour] = useState(5);
+  const [rushedDay, setRushedDay] = useState({
+    statisticType: "Rush Day",
+    value: "Tuesday",
+    reservationCount: 2,
+  });
+  const [rushedHour, setRushedHour] = useState({
+    statisticType: "Rush Hour",
+    value: "5 PM",
+    reservationCount: 1,
+  });
 
   useEffect(() => {
     if (!(adminData == null)) localStorage.setItem("admin", adminData);
@@ -87,7 +86,7 @@ const AdminDashboard = () => {
         const result = await response.json();
         if (result.length > 0) {
           setAnnouncements(result); // Ensure this function is defined in your component
-        }else {
+        } else {
           setAnnouncements(initialResponse);
         }
       } else {
@@ -97,8 +96,73 @@ const AdminDashboard = () => {
       console.error("Error:", error);
     }
   };
+
+  const getAllSlots = async () => {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/Reservation/real-time`
+    );
+
+    if (response.ok) {
+      const slots = await response.json();
+      const groupedSlots = slots.reduce((acc, slot) => {
+        const floor = slot.slotCode.split("-")[0]; // Extract floor name from slotCode
+        const floorIndex = acc.findIndex((item) => item.floor === floor);
+
+        const slotData = {
+          id: slot.slotId,
+          code: slot.slotCode,
+          reserved: !slot.isFree,
+        };
+
+        if (floorIndex >= 0) {
+          // Add slot to existing floor
+          acc[floorIndex].slots.push(slotData);
+        } else {
+          // Create a new floor group
+          acc.push({
+            floor: floor,
+            slots: [slotData],
+          });
+        }
+
+        return acc;
+      }, []);
+
+      setMySlots(groupedSlots);
+    } else {
+      setMySlots(initialSlots);
+    }
+  };
+
+  const calculateRushedData = async () => {
+    const rushedData = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/statistics/rush`
+    );
+    if (rushedData.ok) {
+      const data = await rushedData.json();
+      const rh = data.find((d) => {
+        return d.statisticType === "Rush Hour";
+      })
+      setRushedHour(rh);
+      const rd = data.find((d) => {
+        return d.statisticType === "Rush Day";
+      })
+      setRushedDay(rd);
+    } else {
+      console.log("first");
+    }
+  };
+
   useEffect(() => {
-    fetchannouncements()
+    fetchannouncements();
+  }, []);
+
+  useEffect(() => {
+    getAllSlots();
+  }, []);
+
+  useEffect(() => {
+    calculateRushedData(); 
   }, []);
 
   const loginAsAdmin = async (data) => {
@@ -161,7 +225,7 @@ const AdminDashboard = () => {
           text: "The announcement has been successfully added.",
           confirmButtonText: "OK",
         });
-        fetchannouncements()
+        fetchannouncements();
       } else {
         const error = await response.text();
         Swal.fire({
@@ -203,7 +267,7 @@ const AdminDashboard = () => {
           text: "The announcement has been successfully edited.",
           confirmButtonText: "OK",
         });
-        fetchannouncements()
+        fetchannouncements();
       } else {
         const error = await response.text();
         Swal.fire({
@@ -244,7 +308,7 @@ const AdminDashboard = () => {
           text: "The announcement has been successfully deleted.",
           confirmButtonText: "OK",
         });
-        fetchannouncements()
+        fetchannouncements();
       } else {
         const error = await response.text();
         Swal.fire({
@@ -265,51 +329,119 @@ const AdminDashboard = () => {
     }
   };
 
-  const bookSlot = (floorIndex, slotIndex, carNumber) => {
-    setMySlots((prevSlots) =>
-      prevSlots.map((floor, fIndex) =>
-        fIndex === floorIndex
-          ? {
-              ...floor,
-              slots: floor.slots.map((slot, sIndex) =>
-                sIndex === slotIndex ? { ...slot, reserved: true } : slot
-              ),
-            }
-          : floor
-      )
-    );
-    Swal.fire("Success", "Slot booked successfully!", "success");
+  const bookSlot = async (slot, carNumber) => {
+    let userId = null;
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/UserA`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            carNumber,
+          }),
+        }
+      );
+      if (response.ok) {
+        toast.success("User Registered Successfully", {
+          position: "top-right",
+        });
+        const data = await response.json();
+        userId = data.userId;
+      } else {
+        toast.error("User Not Registered", {
+          position: "top-right",
+        });
+      }
+
+      if (userId != null) {
+        const reserveSlot = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/ReservationA`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userAId: userId,
+              slotCode: slot.code,
+            }),
+          }
+        );
+        if (reserveSlot.ok) {
+          console.log(reserveSlot);
+          toast.success("Slot Reserved Successfully", {
+            position: "top-right",
+          });
+          getAllSlots();
+        } else {
+          toast.error("Slot cannot be reserved", {
+            position: "top-right",
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      toast.error("An error occurred", {
+        position: "top-right",
+      });
+    }
   };
 
-  const emptySlot = (floorIndex, slotIndex) => {
-    setMySlots((prevSlots) =>
-      prevSlots.map((floor, fIndex) =>
-        fIndex === floorIndex
-          ? {
-              ...floor,
-              slots: floor.slots.map((slot, sIndex) =>
-                sIndex === slotIndex ? { ...slot, reserved: false } : slot
-              ),
-            }
-          : floor
-      )
-    );
-    Swal.fire("Success", "Slot emptied successfully!", "success");
+  const emptySlot = async (reservationid) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/Reservation/${reservationid}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: 0,
+            userAId: 0,
+            slotCode: "string",
+          }),
+        }
+      );
+      if (response.ok) {
+        const message = await response.text();
+        toast.success(`${message}`, {
+          position: "top-right",
+        });
+        getAllSlots();
+      } else {
+        toast.error("Failed to Release Slot", {
+          position: "top-right",
+        });
+      }
+    } catch (error) {
+      toast.error("failed to Release Slot", {
+        position: "top-right",
+      });
+    }
   };
-
-  const handleSlotClick = (floorIndex, slotIndex) => {
-    const selectedSlot = mySlots[floorIndex].slots[slotIndex];
-
-    if (selectedSlot.reserved) {
+  const handleSlotClick = (slot) => {
+    if (slot.reserved) {
       Swal.fire({
-        title: "Confirm",
-        text: "Do you want to empty this slot?",
-        icon: "warning",
+        title: "Empty Slot",
+        text: "Enter Reservation Id to release the slot:",
+        icon: "error",
+        input: "text", // Input field for car number
+        inputPlaceholder: "Enter Reservation Id",
         showCancelButton: true,
-        confirmButtonText: "Yes, empty it",
+        confirmButtonText: "Empty Slot",
+        preConfirm: (ReservationId) => {
+          if (!ReservationId) {
+            Swal.showValidationMessage("ReservationId is required!");
+          }
+          return ReservationId; // Return car number to `.then()`
+        },
       }).then((result) => {
         if (result.isConfirmed) {
-          emptySlot(floorIndex, slotIndex);
+          emptySlot(result.value);
         }
       });
     } else {
@@ -329,24 +461,27 @@ const AdminDashboard = () => {
         },
       }).then((result) => {
         if (result.isConfirmed) {
-          bookSlot(floorIndex, slotIndex, result.value); // Use the entered car number
+          bookSlot(slot, result.value); // Use the entered car number
         }
       });
     }
   };
 
   const updatePassword = async (data) => {
-   try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Admin/api/admin/update-password`,{
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "*/*",
-        },
-        body: JSON.stringify({
-          newPassword: data
-        }),
-      })
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/Admin/api/admin/update-password`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "*/*",
+          },
+          body: JSON.stringify({
+            newPassword: data,
+          }),
+        }
+      );
       if (response.ok) {
         Swal.fire({
           icon: "success",
@@ -354,7 +489,7 @@ const AdminDashboard = () => {
           text: "The Password has been successfully updated.",
           confirmButtonText: "OK",
         });
-        fetchannouncements()
+        fetchannouncements();
       } else {
         const error = await response.text();
         Swal.fire({
@@ -375,13 +510,8 @@ const AdminDashboard = () => {
     }
   };
 
-  // Function to clear admin data
-  const logoutAsAdmin = () => {
-    setAdminData(null);
-  };
-
   const handleLogout = () => {
-    logoutAsAdmin();
+    setAdminData(null);
   };
 
   const renderComponent = () => {

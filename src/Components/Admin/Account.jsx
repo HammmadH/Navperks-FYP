@@ -16,6 +16,7 @@ ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
 
 function Account({adminData, updatePassword, rushedDay, rushedHour}) {
+  console.log(rushedDay)
   const [isEditAccountDetailsOpen, setIsEditAccountDetailsOpen] =
     useState(false);
   const [password, setPassword] = useState("");
@@ -26,7 +27,6 @@ function Account({adminData, updatePassword, rushedDay, rushedHour}) {
     password: "",
     newPassword: "",
   });
-
   const validatePasswords = () => {
     const newErrors = { password: "", newPassword: "" };
   
@@ -122,11 +122,11 @@ function Account({adminData, updatePassword, rushedDay, rushedHour}) {
         <div className="my-2 text-2xl font-semibold flex flex-col gap-y-2">
           <div className="flex justify-between  items-center">
             <div className="text-[#2cc40d]">Rushed Day:</div>
-            <div className="text-[#17502d]">{rushedDay}</div>
+            <div className="text-[#17502d]">{rushedDay.value}</div>
           </div>
           <div className="flex justify-between  items-center">
             <div className="text-[#2cc40d]">Rushed Hour:</div>
-            <div className="text-[#17502d]">{rushedHour}</div>
+            <div className="text-[#17502d]">{rushedHour.value}</div>
           </div>
         </div>
       </div>

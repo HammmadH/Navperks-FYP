@@ -8,7 +8,7 @@ function Slots({mySlots,selectedFloor,setSelectedFloor, handleSlotClick}) {
 
     return (
     <div className="flex flex-col">
-      <div className=" shadow-xl left-0 fixed z-20 w-full top-0">
+      <div className=" shadow-xl left-0 relative z-20 w-full top-0">
         {/* Header */}
         <div className="flex py-4 px-3 items-center justify-center rounded">
           <div className="text-[#2cc40d] ml-2 font-extrabold text-2xl">
@@ -20,7 +20,7 @@ function Slots({mySlots,selectedFloor,setSelectedFloor, handleSlotClick}) {
         <FloorSlider mySlots={mySlots} selectedFloor={selectedFloor} setSelectedFloor={setSelectedFloor} />
       </div>
       {/* slot container */}
-      <div className="grid h-4/6 overflow-y-scroll pt-40 pb-20 grid-cols-3 gap-4 px-4">
+      <div className="grid h-4/6 overflow-y-scroll pt-10 pb-20 grid-cols-3 gap-4 px-4">
         {/* Odd Slots */}
         <div className="py-2 border-t  border-b border-l border-dotted border-gray-400">
           {/* Empty Slot (Above Odd Slots) */}
@@ -41,9 +41,9 @@ function Slots({mySlots,selectedFloor,setSelectedFloor, handleSlotClick}) {
               <div key={slot.id} className="relative mb-4 h-14">
                 <div
                   className={`cursor-pointer h-full ml-2 flex  rounded `}
-                  onClick={() => handleSlotClick(selectedFloor, index)}
+                  onClick={() => handleSlotClick(slot)}
                 >
-                  {slot.reserved ? <img src={Car} className="m-auto" /> : <div className="m-auto">Available</div>}
+                  {slot.reserved ?  <div className="m-auto font-bold">{slot.code}</div> : <div className="m-auto">Available</div>}
                 </div>
                 {/* Divider Line */}
                 <div className="absolute inset-x-0 -bottom-2 h-[1px] border-t border-dotted border-gray-400" />
@@ -122,9 +122,9 @@ function Slots({mySlots,selectedFloor,setSelectedFloor, handleSlotClick}) {
               <div key={slot.id} className="relative mb-4 h-14">
                 <div
                   className={`cursor-pointer h-full mr-2 flex  rounded `}
-                  onClick={() => handleSlotClick(selectedFloor, index)}
+                  onClick={() => handleSlotClick(slot)}
                 >
-                  {slot.reserved ? <img src={Car} className="m-auto rotate-180" /> : <div className="m-auto">Available</div>}
+                  {slot.reserved ? <div className="m-auto font-bold">{slot.code}</div> : <div className="m-auto">Available</div>}
                 </div>
                 {/* Divider Line */}
                 <div className="absolute inset-x-0 -bottom-2 h-[1px] border-t border-dotted border-gray-400" />
@@ -173,7 +173,7 @@ const FloorSlider = ({ mySlots, selectedFloor, setSelectedFloor }) => {
   }, [selectedFloor]);
 
   return (
-    <div className="floor-slider justify-around w-full flex mb-5 relative">
+    <div className="floor-slider justify-around bg-white w-full flex mb-5 relative">
       {mySlots.map((floor, index) => (
         <div
           key={index}
@@ -181,7 +181,7 @@ const FloorSlider = ({ mySlots, selectedFloor, setSelectedFloor }) => {
           onClick={() => handleFloorClick(index)}
           className={`flex py-3 px-2 cursor-pointer items-center justify-center text-base font-semibold relative`}
         >
-          <span>{floor.floor}</span>
+          <span>{floor.floor === "CS" ? "COCIS":"COMS"}</span>
         </div>
       ))}
 
