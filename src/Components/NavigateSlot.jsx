@@ -3,7 +3,6 @@ import Car from "../assets/car.png";
 import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import RadialSeparators from "./RadialSeparators";
-import useParking from "../Context/useParkingContext";
 
 const zones = [
   { id: 1, label: "FLOOR 1" },
@@ -11,8 +10,7 @@ const zones = [
   { id: 3, label: "FLOOR 3" },
 ];
 
-const NavigateSlot = ({ onSelect }) => {
-  const { bookedSlot, setBookedSlot, setIsParked, isParked , remainingTime, setRemainingTime , timerRunning, setTimerRunning } = useParking();
+const NavigateSlot = ({ onSelect , bookedSlot, isParked , remainingTime, setRemainingTime , timerRunning, setTimerRunning}) => {
 // To track if the timer is running
   const totalTime = 120; // Total time in seconds (2 minutes)
 

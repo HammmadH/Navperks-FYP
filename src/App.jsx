@@ -7,13 +7,109 @@ import BookSlot from "./Components/BookSlot";
 import NavigateKiet from "./Components/NavigateKiet";
 import NavigateSlot from "./Components/NavigateSlot";
 import BottomBar from "./Components/BottomBar";
-// import LocationPrompt from './Components/LocationPrompt';
+
+
+const initialResponse = [
+  {
+    id: 1,
+    announcementText: "There isn't any event or announcement for now in KIET.",
+  },
+  {
+    id: 2,
+    announcementText: "There isn't any event or announcement for now in KIET.",
+  },
+  {
+    id: 3,
+    announcementText: "There isn't any event or announcement for now in KIET.",
+  },
+  {
+    id: 4,
+    announcementText: "There isn't any event or announcement for now in KIET.",
+  }, {
+    id: 5,
+    announcementText: "There isn't any event or announcement for now in KIET.",
+  }, {
+    id: 6,
+    announcementText: "There isn't any event or announcement for now in KIET.",
+  },
+]
+
 
 function App() {
   const [step, setStep] = useState(1);
-  const [selectedComponent, setSelectedComponent] = useState('home'); // Default component is home
-  const [showBottomBar, setShowBottomBar] = useState(true);  // To handle bottom bar visibility
-  const [lastScrollY, setLastScrollY] = useState(0); // Track last scroll position
+
+  const [selectedComponent, setSelectedComponent] = useState('home'); 
+    const [announcements, setAnnouncements] = useState(initialResponse);
+
+  const [showBottomBar, setShowBottomBar] = useState(true); 
+  const [lastScrollY, setLastScrollY] = useState(0); 
+
+  const [bookedSlot, setBookedSlot] = useState(localStorage.getItem("bookedSlot"));
+  const [isParked, setIsParked] = useState(() => {
+    const isParkedValue = localStorage.getItem("isParked");
+    const bookedSlotValue = localStorage.getItem("bookedSlot");
+
+    // Check if both values exist and are valid, otherwise set default to false
+    return isParkedValue && bookedSlotValue ? JSON.parse(isParkedValue) : false;
+  });
+  const [remainingTime, setRemainingTime] = useState(0); // Timer state
+  const [timerRunning, setTimerRunning] = useState(false);
+
+
+  const fetchannouncements = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/Announcements`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "*/*",
+          },
+        }
+      );
+      if (response.ok) {
+        const result = await response.json();
+        if (result.length > 0) {
+          setAnnouncements(result); // Ensure this function is defined in your component
+        }else {
+          setAnnouncements(initialResponse);
+        }
+      } else {
+        console.log("error");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  useEffect(() => {
+    fetchannouncements()
+  }, []);
+
+  useEffect(() => {
+    if (bookedSlot == null) localStorage.removeItem("bookedSlot")
+    else localStorage.setItem("bookedSlot", bookedSlot);
+  }, [bookedSlot]);
+
+  useEffect(() => {
+    localStorage.setItem("isParked", isParked);
+  }, [isParked]);
+
+  useEffect(() => {
+    let timerInterval;
+    if (timerRunning && remainingTime > 0) {
+      timerInterval = setInterval(() => {
+        setRemainingTime((prev) => Math.max(prev - 1, 0));
+      }, 1000);
+    } else if (remainingTime === 0 && timerRunning) {
+      // Timer ends, reset localStorage
+      setBookedSlot(null);
+      setIsParked(false);
+      setTimerRunning(false);
+    }
+
+    return () => clearInterval(timerInterval);
+  }, [timerRunning, remainingTime, setBookedSlot, setIsParked]);
 
   useEffect(() => {
     const userAgreed = localStorage.getItem('userAgreement') === 'true'; // Check if user has agreed
@@ -48,6 +144,16 @@ function App() {
     };
   }, [lastScrollY, selectedComponent]);
 
+  const bookSlot = (slotCode) => {
+    setIsParked(false);
+    setBookedSlot(slotCode);
+    setIsParked(false);
+
+    setTimeout(() => {
+      setIsParked(true);
+    }, 10 * 1000);
+  };
+
   const handleContinue = () => {
     setStep(3); // Move to MainComponent
   };
@@ -64,7 +170,7 @@ function App() {
   const renderComponent = () => {
     switch (selectedComponent) {
       case 'home':
-        return <MainComponent onSelect={handleSelectComponent} />;
+        return <MainComponent  announcements={announcements} onSelect={handleSelectComponent} />;
       case 'bookSlot':
         return <BookSlot onSelect={handleSelectComponent} />;
       case 'yourSlot':
@@ -72,7 +178,7 @@ function App() {
       case 'kiet':
         return <NavigateKiet onHomeClick={handleHomeClick} />;
       default:
-        return <MainComponent onSelect={handleSelectComponent} />;
+        return <MainComponent  announcements={announcements} onSelect={handleSelectComponent} />;
     }
   };
 

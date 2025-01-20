@@ -3,32 +3,35 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router";
 import "./index.css";
 import App from "./App.jsx";
-import { ParkingContextProvider } from "./Context/ParkingContext.jsx";
 import Admin from "./Components/Admin/Admin.jsx";
 import ReportTable from "./Components/Admin/ReportTable.jsx";
+import IndoorMap from "./Components/IndoorMap.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ParkingContextProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<App />} />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route
+          path="admin"
+          element={
+            <Admin />
+          }
+        />
+        <Route
+          path="table"
+          element={
+            <ReportTable />
+          }
+        />
+        <Route
+          path="map"
+          element={
+            <IndoorMap />
+          }
+        />
 
-          <Route
-            path="admin"
-            element={
-                <Admin />
-            }
-          />
-          <Route
-            path="table"
-            element={
-              <ReportTable />
-            }
-          />
-          
-        </Routes>
-      </BrowserRouter>
-    </ParkingContextProvider>
+      </Routes>
+    </BrowserRouter>
   </StrictMode>
 );

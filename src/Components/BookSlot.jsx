@@ -3,10 +3,8 @@ import Swal from "sweetalert2";
 import Car from "../assets/car1.png";
 import vertical from "../assets/car.png";
 import { FaLongArrowAltUp } from "react-icons/fa";
-import useParking from "../Context/useParkingContext";
 
-export default function BookSlot({ onSelect }) {
-  const {bookedSlot, bookSlot} = useParking();
+export default function BookSlot({ onSelect , bookedSlot, bookSlot }) {
   const [mySlots, setMySlots] = useState([]);
   const [selectedFloor, setSelectedFloor] = useState(0);
   const [animatingSlot, setAnimatingSlot] = useState(null);
