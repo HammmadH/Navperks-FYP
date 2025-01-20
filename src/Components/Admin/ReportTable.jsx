@@ -3,7 +3,7 @@ import { format, parseISO, differenceInSeconds } from "date-fns";
 import { FaSort, FaSortUp, FaSortDown, FaFileExport, FaSync, FaEye, FaCompressAlt, FaExpandAlt, FaTimes, FaSearchPlus, FaSearchMinus } from "react-icons/fa";
 import { BiSearch } from "react-icons/bi";
 
-const TransactionTable = () => {
+const ReportTable = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState({ key: "timeIn", direction: "desc" });
@@ -311,4 +311,4 @@ const TransactionTable = () => {
   );
 };
 
-export default TransactionTable;
+export default ReportTable;

@@ -16,9 +16,7 @@ function Login({loginAsAdmin}) {
     } 
     if (!password) {
       newErrors.password = "Password is required.";
-    } else if (password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters.";
-    }
+    } 
     setErrors(newErrors);
     return Object.values(newErrors).every((error) => error === "");
   };
@@ -55,6 +53,8 @@ function Login({loginAsAdmin}) {
                   type="text"
                   name="username"
                   id="username"
+                  autoComplete="off"
+                  autoFocus="on"
                   className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-[#17502d] focus:border-[#17502d] block w-full p-2.5"
                   placeholder="Enter Your Username"
                   value={username}
@@ -77,6 +77,7 @@ function Login({loginAsAdmin}) {
                     type={showPassword ? "text" : "password"}
                     name="password"
                     id="password"
+                    autoComplete="false"
                     placeholder="••••••••"
                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-[#17502d] focus:border-[#17502d] block w-full p-2.5 "
                     value={password}

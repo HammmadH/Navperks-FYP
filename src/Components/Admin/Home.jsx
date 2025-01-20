@@ -38,7 +38,7 @@ export default function Home({ onSelect, announcements, handleAdd, handleEdit, h
       handleAdd(announcement)
     } else {
       handleEdit(id, announcement)
-    }
+    } 
   }
 
   return (
@@ -64,7 +64,7 @@ export default function Home({ onSelect, announcements, handleAdd, handleEdit, h
             <div className="relative flex items-center justify-between px-5 py-2" key={a.id}>
               {/* Announcement Text */}
               <p className="text-lg text-[#17502d] font-semibold flex-1">
-                {a.announcement}
+                {a.announcementText}
               </p>
               {/* Three-dot Menu */}
               {openTooltip === a.id && (
@@ -83,7 +83,7 @@ export default function Home({ onSelect, announcements, handleAdd, handleEdit, h
                   </button>
                   <button
                     className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
-                    onClick={() => console.log(`Delete ${a.id}`)}
+                    onClick={() => handleDelete(a.id)}
                   >
                     Delete
                   </button>
@@ -150,6 +150,7 @@ useEffect(()=>{
                   className="space-y-4 sm:space-y-6"
                   onSubmit={(e) => {
                     e.preventDefault(); // Prevent page reload
+                    setIsAnnouncementContainerOpen(false)
                     submitAnnouncement(id , announcement); // Pass the announcement text
                   }}
                   noValidate

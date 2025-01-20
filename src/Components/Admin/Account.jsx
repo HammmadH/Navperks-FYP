@@ -29,29 +29,44 @@ function Account({adminData, updatePassword, rushedDay, rushedHour}) {
 
   const validatePasswords = () => {
     const newErrors = { password: "", newPassword: "" };
+  
+    // Define regex for validation
+    const uppercaseRegex = /[A-Z]/;
+    const lowercaseRegex = /[a-z]/;
+    const numberRegex = /[0-9]/;
+    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+  
+    // Validate current password
     if (!password) {
       newErrors.password = "Password is required.";
     } else if (password.length < 8) {
       newErrors.password = "Password must be at least 8 characters.";
+    } else if (!uppercaseRegex.test(password)) {
+      newErrors.password = "Password must include at least one uppercase letter.";
+    } else if (!lowercaseRegex.test(password)) {
+      newErrors.password = "Password must include at least one lowercase letter.";
+    } else if (!numberRegex.test(password)) {
+      newErrors.password = "Password must include at least one number.";
+    } else if (!specialCharRegex.test(password)) {
+      newErrors.password = "Password must include at least one special character.";
+    } else if (!newPassword) {
+      newErrors.newPassword = "Confirm Password is required.";
+    } else if (!(password === newPassword)) {
+      newErrors.newPassword = "Confirm password must be same password.";
     }
-    if (!newPassword) {
-      newErrors.newPassword = "Password is required.";
-    } else if (newPassword.length < 8) {
-      newErrors.newPassword = "Password must be at least 8 characters.";
-    } else if (password === newPassword) {
-      newErrors.newPassword = "New password must be different from the current password.";
-    }
-    
+  
     setErrors(newErrors);
     return Object.values(newErrors).every((error) => error === "");
   };
+  
 
 
   const updatePasswordHandler = async (event) => {
     event.preventDefault();
     if (!validatePasswords()) return;
 
-    updatePassword({ email, password });
+    updatePassword(password);
+    setIsEditAccountDetailsOpen(false)
   };
 
   const [viewMode, setViewMode] = useState("days"); // State for dropdown selection
@@ -92,7 +107,7 @@ function Account({adminData, updatePassword, rushedDay, rushedHour}) {
         <p className="text-2xl font-bold text-[#2cc40d]">
           Hi{" "}
           <span className="text-3xl text-[#17502d]">
-            {adminData?.username || "Admin"}
+            {adminData || "Admin"}
           </span>
           ,
         </p>
