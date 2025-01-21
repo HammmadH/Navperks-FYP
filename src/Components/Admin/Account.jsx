@@ -9,14 +9,15 @@ import {
   LinearScale,
   PointElement,
 } from "chart.js";
+import ReportTable from "./ReportTable";
 
 
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
 
-function Account({adminData, updatePassword, rushedDay, rushedHour}) {
-  console.log(rushedDay)
+function Account({adminData, updatePassword, rushedDay, rushedHour, data}) {
+  const [download, setDownload] = useState(null)
   const [isEditAccountDetailsOpen, setIsEditAccountDetailsOpen] =
     useState(false);
   const [password, setPassword] = useState("");
@@ -27,6 +28,7 @@ function Account({adminData, updatePassword, rushedDay, rushedHour}) {
     password: "",
     newPassword: "",
   });
+  const [isReportOpen, setIsReportOpen] = useState(false)
   const validatePasswords = () => {
     const newErrors = { password: "", newPassword: "" };
   
@@ -172,8 +174,10 @@ function Account({adminData, updatePassword, rushedDay, rushedHour}) {
       </div>
 
       <div className="flex justify-between text-lg mt-5 text-white text-center font-semibold align-middle">
-        <div className="flex-[0_0_calc(50%-0.25rem)] bg-[#2cc40d] py-3 rounded-xl">View Report</div>
-        <div className="flex-[0_0_calc(50%-0.25rem)] bg-[#2cc40d] py-3 rounded-xl">Download Report</div>
+        <div className="flex-[0_0_calc(50%-0.25rem)] bg-[#2cc40d] py-3 rounded-xl" onClick={()=>{
+          setIsReportOpen(true)
+        }}>View Report</div>
+        <div className="flex-[0_0_calc(50%-0.25rem)] bg-[#2cc40d] py-3 rounded-xl" onClick={download?.handleSave}>Download Report</div>
       </div>
       <div
         className={`fixed top-0 inset-x-0 w-screen h-full   z-50 bg-white text-black transform ${isEditAccountDetailsOpen ? "translate-y-0" : "translate-y-full"
@@ -293,6 +297,7 @@ function Account({adminData, updatePassword, rushedDay, rushedHour}) {
           </section></div>
 
       </div>
+      <ReportTable data={data} isOpen={isReportOpen} setIsOpen={setIsReportOpen} setDownload={setDownload}/>
     </div>
   );
 }

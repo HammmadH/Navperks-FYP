@@ -4,56 +4,15 @@ import Car from "../assets/car1.png";
 import vertical from "../assets/car.png";
 import { FaLongArrowAltUp } from "react-icons/fa";
 
-export default function BookSlot({ onSelect , bookedSlot, bookSlot }) {
-  const [mySlots, setMySlots] = useState([]);
+export default function BookSlot({ onSelect , slots:mySlots, bookedSlot, bookSlot }) {
+
   const [selectedFloor, setSelectedFloor] = useState(0);
   const [animatingSlot, setAnimatingSlot] = useState(null);
 
-  useEffect(() => {
-    let slots = JSON.parse(localStorage.getItem("slots")) || [];
-    if (slots.length === 0) {
-      slots = [
-        {
-          floor: "Floor 1",
-          slots: [
-            { id: "F1-S1", reserved: true },
-            { id: "F1-S2", reserved: false },
-            { id: "F1-S3", reserved: true },
-            { id: "F1-S4", reserved: false },
-            { id: "F1-S5", reserved: true },
-            { id: "F1-S6", reserved: false },
-          ],
-        },
-        {
-          floor: "Floor 2",
-          slots: [
-            { id: "F2-S1", reserved: false },
-            { id: "F2-S2", reserved: true },
-            { id: "F2-S3", reserved: false },
-            { id: "F2-S4", reserved: true },
-            { id: "F2-S5", reserved: false },
-            { id: "F2-S6", reserved: true },
-          ],
-        },
-        {
-          floor: "Floor 3",
-          slots: [
-            { id: "F3-S1", reserved: true },
-            { id: "F3-S2", reserved: false },
-            { id: "F3-S3", reserved: false },
-            { id: "F3-S4", reserved: true },
-            { id: "F3-S5", reserved: false },
-            { id: "F3-S6", reserved: true },
-          ],
-        },
-      ];
-      localStorage.setItem("slots", JSON.stringify(slots));
-    }
-    setMySlots(slots);
-  }, []);
+
 
   const handleSlotClick = (slot) => {
-    if (bookedSlot != null) {
+    if (bookedSlot != null ) {
       Swal.fire({
         icon: "warning",
         title: "Slot Already Booked",
@@ -66,13 +25,13 @@ export default function BookSlot({ onSelect , bookedSlot, bookSlot }) {
       Swal.fire({
         icon: "error",
         title: "Slot Already Reserved",
-        text: `Slot ${slot.id} is already reserved by another user.`,
+        text: `Slot ${slot.code} is already reserved by another user.`,
       });
       return;
     }
 
     Swal.fire({
-      title: `Reserve Slot ${slot.id}?`,
+      title: `Reserve Slot ${slot.code}?`,
       text: "Do you want to confirm your reservation?",
       icon: "question",
       showCancelButton: true,
@@ -89,20 +48,13 @@ export default function BookSlot({ onSelect , bookedSlot, bookSlot }) {
   const confirmReservation = (slot) => {
     setAnimatingSlot(slot.id);
     setTimeout(() => {
-      const updatedSlots = mySlots.map((floor) => ({
-        ...floor,
-        slots: floor.slots.map((s) =>
-          s.id === slot.id ? { ...s, reserved: true } : s
-        ),
-      }));
-      setMySlots(updatedSlots);
-      localStorage.setItem("slots", JSON.stringify(updatedSlots));
-      bookSlot(slot.id);
+
+      bookSlot(slot.code);
       setAnimatingSlot(null);
       Swal.fire({
         icon: "success",
         title: "Reservation Confirmed",
-        text: `Slot ${slot.id} is reserved for you!`,
+        text: `Slot ${slot.code} is reserved for you!`,
       });
       onSelect("yourSlot");
     }, 4000); // Adjust this timing to match your CSS animation duration

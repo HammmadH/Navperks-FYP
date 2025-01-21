@@ -7,38 +7,49 @@ import BookSlot from "./Components/BookSlot";
 import NavigateKiet from "./Components/NavigateKiet";
 import NavigateSlot from "./Components/NavigateSlot";
 import BottomBar from "./Components/BottomBar";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const initialResponse = [
   {
     id: 1,
     announcementText: "There isn't any event or announcement for now in KIET.",
-  },
-  {
-    id: 2,
-    announcementText: "There isn't any event or announcement for now in KIET.",
-  },
-  {
-    id: 3,
-    announcementText: "There isn't any event or announcement for now in KIET.",
-  },
-  {
-    id: 4,
-    announcementText: "There isn't any event or announcement for now in KIET.",
-  }, {
-    id: 5,
-    announcementText: "There isn't any event or announcement for now in KIET.",
-  }, {
-    id: 6,
-    announcementText: "There isn't any event or announcement for now in KIET.",
-  },
+  }
 ]
+
+const initialSlots = [
+  {
+    floor: "COCIS",
+    slots: [
+      { id: 1, code: "CS-S1", reserved: true },
+      { id: 2, code: "CS-S2", reserved: false },
+      { id: 3, code: "CS-S3", reserved: false },
+      { id: 4, code: "CS-S4", reserved: false },
+      { id: 5, code: "CS-S5", reserved: false },
+      { id: 6, code: "CS-S6", reserved: false },
+    ],
+  },
+  {
+    floor: "COMS",
+    slots: [
+      { id: 7, code: "CM-S1", reserved: false },
+      { id: 8, code: "CM-S2", reserved: false },
+      { id: 9, code: "CM-S3", reserved: false },
+      { id: 10, code: "CM-S4", reserved: false },
+      { id: 11, code: "CM-S5", reserved: false },
+      { id: 12, code: "CM-S6", reserved: false },
+    ],
+  },
+];
+
 
 
 function App() {
   const [step, setStep] = useState(1);
-
+  
   const [selectedComponent, setSelectedComponent] = useState('home'); 
+  const [slots, setMySlots] = useState(initialSlots);
     const [announcements, setAnnouncements] = useState(initialResponse);
 
   const [showBottomBar, setShowBottomBar] = useState(true); 
@@ -55,6 +66,38 @@ function App() {
   const [remainingTime, setRemainingTime] = useState(0); // Timer state
   const [timerRunning, setTimerRunning] = useState(false);
 
+
+
+  const getUserConsent = async()=>{
+    try{
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/User`,{
+        "method": "POST",
+        headers: {
+          "CONTENT-TYPE": "application/json",
+        },
+        body: JSON.stringify({
+          "consent": true
+        })
+      })
+      if (response.ok) {
+        const data = await response.json()
+        localStorage.setItem("userAgreement", data.userId)
+        toast.success("Thanks for coming.",{
+          position: "top-right"
+        })
+      }
+      else{
+        toast.error("Server Error. please wait",{
+          position: "top-right"
+        })
+      }
+    }catch(err){
+      toast.error("Server Error. please wait",{
+        position: "top-right"
+      })
+    }
+   
+  }
 
   const fetchannouncements = async () => {
     try {
@@ -82,8 +125,46 @@ function App() {
       console.error("Error:", error);
     }
   };
+  const getAllSlots = async () => {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/Reservation/real-time`
+    );
+
+    if (response.ok) {
+      const slots = await response.json();
+      const groupedSlots = slots.reduce((acc, slot) => {
+        const floor = slot.slotCode.split("-")[0]; // Extract floor name from slotCode
+        const floorIndex = acc.findIndex((item) => item.floor === floor);
+
+        const slotData = {
+          id: slot.slotId,
+          code: slot.slotCode,
+          reserved: !slot.isFree,
+        };
+
+        if (floorIndex >= 0) {
+          // Add slot to existing floor
+          acc[floorIndex].slots.push(slotData);
+        } else {
+          // Create a new floor group
+          acc.push({
+            floor: floor,
+            slots: [slotData],
+          });
+        }
+
+        return acc;
+      }, []);
+
+      setMySlots(groupedSlots);
+    } else {
+      setMySlots(initialSlots);
+    }
+  };
+
   useEffect(() => {
     fetchannouncements()
+    getAllSlots()
   }, []);
 
   useEffect(() => {
@@ -112,7 +193,7 @@ function App() {
   }, [timerRunning, remainingTime, setBookedSlot, setIsParked]);
 
   useEffect(() => {
-    const userAgreed = localStorage.getItem('userAgreement') === 'true'; // Check if user has agreed
+    const userAgreed = localStorage.getItem('userAgreement') // Check if user has agreed
 
     if (userAgreed) {
       setStep(3); // Directly show MainComponent if user agreed
@@ -144,15 +225,73 @@ function App() {
     };
   }, [lastScrollY, selectedComponent]);
 
-  const bookSlot = (slotCode) => {
+  const bookSlot = async(slotCode) => {
     setIsParked(false);
-    setBookedSlot(slotCode);
-    setIsParked(false);
-
-    setTimeout(() => {
-      setIsParked(true);
-    }, 10 * 1000);
+    try{
+      const uID = JSON.parse(localStorage.getItem("userAgreement"))
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Reservation`,{
+       "method": "POST",
+        headers: {
+          "CONTENT-TYPE": "application/json",
+        },
+        body: JSON.stringify({
+          userId: uID, slotCode
+        })
+      })
+      if(response.ok){
+        const data = await response.json()
+        localStorage.setItem("reservationId",data.reservationId)
+        toast.success(`${data.message}`,{
+          position: "top-right"
+        })
+        setBookedSlot(slotCode);
+        getAllSlots()
+        setIsParked(false);
+        setTimeout(() => {
+          setIsParked(true);
+        }, 10 * 1000);
+      } else if(response.status === 409){
+        toast.error("You have already booked a slot",{
+          position: "top-right"
+        })
+      }
+    } catch{
+      toast.error("Server Error. please wait",{
+        position: "top-right"
+      })
+    }
+    
+   
   };
+
+  const releaseSlot = async()=>{
+    try{
+      const reservationid = JSON.parse(localStorage.getItem("reservationId"))
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Reservation/${reservationid}`,{
+        "method": "PUT",
+         headers: {
+           "CONTENT-TYPE": "application/json",
+         },
+         body: JSON.stringify({
+          "userId": 0,
+          "userAId": 0,
+          "slotCode": "string"
+        })
+       });
+       if(response.ok){
+        toast.success("Slot Released",{
+          position: "top-right"
+        })
+        getAllSlots()
+       } else{
+        toast.error("Server error",{position:"top-right"})
+       }
+  }
+catch(error){
+  toast.error(`Server error`,{
+    position: "top-right"
+  })
+}}
 
   const handleContinue = () => {
     setStep(3); // Move to MainComponent
@@ -172,11 +311,11 @@ function App() {
       case 'home':
         return <MainComponent  announcements={announcements} onSelect={handleSelectComponent} />;
       case 'bookSlot':
-        return <BookSlot onSelect={handleSelectComponent} />;
+        return <BookSlot onSelect={handleSelectComponent} slots={slots} bookedSlot={bookedSlot} bookSlot={bookSlot} />;
       case 'yourSlot':
-        return <NavigateSlot onSelect={handleSelectComponent} />;
+        return <NavigateSlot onSelect={handleSelectComponent}  releaseSlot={releaseSlot} bookedSlot={bookedSlot} isParked={isParked} remainingTime={remainingTime} setRemainingTime={setRemainingTime} timerRunning={timerRunning} setTimerRunning={setTimerRunning} />;
       case 'kiet':
-        return <NavigateKiet onHomeClick={handleHomeClick} />;
+        return <NavigateKiet onHomeClick={handleHomeClick} onSelect={handleSelectComponent} />;
       default:
         return <MainComponent  announcements={announcements} onSelect={handleSelectComponent} />;
     }
@@ -184,8 +323,9 @@ function App() {
 
   return (
     <div className='h-full overflow-none bg-white [::webkit-scrollbar]:0'>
+      <ToastContainer />
       {step === 1 && <FirstComponent />}
-      {step === 2 && <SecondComponent onContinue={handleContinue} />}
+      {step === 2 && <SecondComponent onContinue={handleContinue} getUserConsent={getUserConsent}/>}
       {step === 3 && renderComponent()}
       {step === 3 && showBottomBar && (
         <BottomBar

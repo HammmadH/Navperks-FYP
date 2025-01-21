@@ -66,6 +66,8 @@ const AdminDashboard = () => {
     reservationCount: 1,
   });
 
+const [data, setData] = useState([])
+
   useEffect(() => {
     if (!(adminData == null)) localStorage.setItem("admin", adminData);
   }, [adminData]);
@@ -153,17 +155,24 @@ const AdminDashboard = () => {
     }
   };
 
+const getAnalytics = async()=>{
+  const response = await fetch( `${import.meta.env.VITE_BACKEND_URL}/Reservation/api/reservationsdetails`)
+  if(response.ok){
+    const data = await response.json()
+    setData(data)
+  }
+}
+
   useEffect(() => {
     fetchannouncements();
-  }, []);
-
-  useEffect(() => {
     getAllSlots();
+    calculateRushedData(); 
+    getAnalytics();
   }, []);
 
   useEffect(() => {
-    calculateRushedData(); 
   }, []);
+
 
   const loginAsAdmin = async (data) => {
     try {
@@ -544,6 +553,7 @@ const AdminDashboard = () => {
             updatePassword={updatePassword}
             rushedDay={rushedDay}
             rushedHour={rushedHour}
+            data={data}
           />
         );
       default:
@@ -562,7 +572,6 @@ const AdminDashboard = () => {
   return (
     <main className="overflow-y-scroll ">
       <ToastContainer />
-      {console.log(typeof adminData)}
       {!(adminData == null) ? (
         <>
           {renderComponent()}

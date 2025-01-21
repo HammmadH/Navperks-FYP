@@ -10,11 +10,18 @@ const zones = [
   { id: 3, label: "FLOOR 3" },
 ];
 
-const NavigateSlot = ({ onSelect , bookedSlot, isParked , remainingTime, setRemainingTime , timerRunning, setTimerRunning}) => {
-// To track if the timer is running
+const NavigateSlot = ({
+  onSelect,
+  bookedSlot,
+  isParked,
+  remainingTime,
+  setRemainingTime,
+  timerRunning,
+  setTimerRunning,
+  releaseSlot,
+}) => {
+  // To track if the timer is running
   const totalTime = 120; // Total time in seconds (2 minutes)
-
-  
 
   const startTimer = () => {
     setRemainingTime(totalTime);
@@ -34,7 +41,15 @@ const NavigateSlot = ({ onSelect , bookedSlot, isParked , remainingTime, setRema
         <div className="flex justify-center items-center rounded-full w-60 h-full">
           <CircularProgressbarWithChildren
             value={progressValue}
-            text={remainingTime > 0 ? `` : isParked ? "Parked" : bookedSlot ? "Park" : "Free"}
+            text={
+              remainingTime > 0
+                ? ``
+                : isParked
+                ? "Parked"
+                : bookedSlot
+                ? "Park"
+                : "Free"
+            }
             strokeWidth={8}
             styles={{
               trail: {
@@ -71,7 +86,8 @@ const NavigateSlot = ({ onSelect , bookedSlot, isParked , remainingTime, setRema
           </div>
         ) : (
           ""
-        )}{remainingTime > 0 ? (
+        )}
+        {remainingTime > 0 ? (
           <div className="flex flex-col items-center text-[#17502d]">
             <div className="text-2xl font-bold">{remainingTime} s</div>
           </div>
@@ -80,6 +96,7 @@ const NavigateSlot = ({ onSelect , bookedSlot, isParked , remainingTime, setRema
         )}
         <Button
           bookedSlot={bookedSlot}
+          releaseSlot={releaseSlot}
           isParked={isParked}
           onSelect={onSelect}
           startTimer={startTimer}
@@ -92,7 +109,16 @@ const NavigateSlot = ({ onSelect , bookedSlot, isParked , remainingTime, setRema
   );
 };
 
-const Button = ({ bookedSlot, isParked, onSelect, startTimer, stopTimer, timerRunning, remainingTime }) => {
+const Button = ({
+  bookedSlot,
+  isParked,
+  onSelect,
+  startTimer,
+  stopTimer,
+  timerRunning,
+  remainingTime,
+  releaseSlot,
+}) => {
   if (!bookedSlot) {
     return (
       <button
@@ -101,7 +127,7 @@ const Button = ({ bookedSlot, isParked, onSelect, startTimer, stopTimer, timerRu
           onSelect("bookSlot");
         }}
       >
-        BOOK SLOT 
+        BOOK SLOT
       </button>
     );
   } else if (bookedSlot && !isParked) {
@@ -114,8 +140,10 @@ const Button = ({ bookedSlot, isParked, onSelect, startTimer, stopTimer, timerRu
     if (!timerRunning) {
       return (
         <button
-          className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer" 
-          onClick={startTimer}
+          className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer"
+          onClick={() => {
+            startTimer(), releaseSlot();
+          }}
         >
           FREE SLOT
         </button>
@@ -147,25 +175,28 @@ export default NavigateSlot;
 function ZoneNav({ selectedZone, zones, className, ...props }) {
   return (
     <nav
-      className={`relative flex items-center w-full shadow-xl bg-gray-100 justify-center gap-4 px-4 py-2 text-center ${className || ""}`}
+      className={`relative flex items-center w-full shadow-xl bg-gray-100 justify-center gap-4 px-4 py-2 text-center ${
+        className || ""
+      }`}
       {...props}
     >
       {zones.map((zone) => (
         <div
           key={zone.id}
-          className={`relative flex h-32 w-16 flex-col items-center justify-center transition-all before:absolute before:inset-0 z-10 before:rounded-[40px_40px_20px_20px] ${selectedZone == zone.id
-            ? " before:bg-[#2cc40d]"
-            : "before:bg-gray-300"
-            }`}
+          className={`relative flex h-32 w-16 flex-col items-center justify-center transition-all before:absolute before:inset-0 z-10 before:rounded-[40px_40px_20px_20px] ${
+            selectedZone == zone.id
+              ? " before:bg-[#2cc40d]"
+              : "before:bg-gray-300"
+          }`}
         >
           <div className="flex flex-col relative items-center rotate-[-90deg]">
             <span
-              className={`text-lg font-bold whitespace-nowrap ${selectedZone == zone.id ? "text-white" : "text-black"
-                }`}
+              className={`text-lg font-bold whitespace-nowrap ${
+                selectedZone == zone.id ? "text-white" : "text-black"
+              }`}
             >
               {zone.label}
             </span>
-
           </div>
         </div>
       ))}
