@@ -1,25 +1,31 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
+import { Zoom } from 'react-toastify';
 
-const indoorMap = () => {
-  const mapRef = useRef(null);
-
+const IndoorMap = () => {
   useEffect(() => {
     const initMap = () => {
       // Check if Woosmap is loaded
       if (window.woosmap) {
-        const myMap = new window.woosmap.map.Map(mapRef.current, {
-          "gestureHandling": "greedy"
+        const isMobile = window.innerWidth <= 768; // Detect if the user is on mobile
+
+        const myMap = new window.woosmap.map.Map(document.getElementById('map'), {
+          gestureHandling: isMobile ? "cooperative" : "greedy",
+          Zoom: 20,
+          center: {lat:24.92786605915773,lng:67.04737722873689} // Adjust gesture handling for mobile
         });
 
         const indoorRendererConfiguration = {
-          "defaultFloor": 3,
-          "venue": "wgs",
-          "forceExtrusion": true
+          defaultFloor: 0,
+          venue: "kiet",
+          forceExtrusion: true,
+          responsive: isMobile ? 'mobile' : 'desktop', // Make responsive based on device type
         };
 
         const indoorWidgetConfiguration = {
-          "autocompleteWithDistance": true
+          autocompleteWithDistance: true,
         };
+
+        window.map = myMap;
 
         const indoorWidget = new window.woosmap.map.IndoorWidget(
           indoorWidgetConfiguration,
@@ -28,14 +34,7 @@ const indoorMap = () => {
         indoorWidget.setMap(myMap);
 
         indoorWidget.addListener("indoor_venue_loaded", () => {
-          indoorWidget.setUserLocation(
-            43.6065728,
-            3.92195288,
-            3, // user level
-            0, // bearing (in degrees)
-            false // force the focus (boolean)
-          );
-          myMap.setTilt(15); // Use `myMap` to set tilt instead of window.map
+          window.map.setTilt(isMobile ? 10 : 15); // Adjust tilt for mobile devices
         });
       } else {
         console.error('Woosmap SDK is not loaded.');
@@ -44,9 +43,12 @@ const indoorMap = () => {
 
     const script = document.createElement("script");
     script.src =
-      "https://sdk.woosmap.com/map/map.js?libraries=widgets&key=woos-9c95113e-d4a4-3d68-ae13-01afebdc35e9&callback=initMap";
+      "https://sdk.woosmap.com/map/map.js?libraries=widgets&key=woos-4149855e-a563-3eaa-99c0-9453254892d4&callback=initMap";
     script.async = true;
+    script.defer = true;
     document.body.appendChild(script);
+
+    window.initMap = initMap;
 
     return () => {
       // Cleanup the script when component is unmounted
@@ -54,10 +56,16 @@ const indoorMap = () => {
     };
   }, []);
 
-  return <div style={{ height: '600px', width: '100%' }} ref={mapRef} id="map"></div>;
+  return (
+    <div
+      id="map"
+      className="w-full h-screen sm:h-[calc(100vh-100px)] min-h-[600px]"
+      style={{ height: '100%', width: 'auto' }}
+    ></div>
+  );
 };
 
-export default indoorMap;
+export default IndoorMap;
 
 
 

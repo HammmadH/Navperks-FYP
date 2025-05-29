@@ -5,41 +5,35 @@ import "react-circular-progressbar/dist/styles.css";
 import RadialSeparators from "./RadialSeparators";
 
 const zones = [
-  { id: 1, label: "FLOOR 1" },
-  { id: 2, label: "FLOOR 2" },
-  { id: 3, label: "FLOOR 3" },
+  { id: 'S', label: "COCIS" },
+  { id: 'M', label: "COMS" },
 ];
 
 const NavigateSlot = ({
   onSelect,
   bookedSlot,
   isParked,
+  speed,
   remainingTime,
-  setRemainingTime,
   timerRunning,
-  setTimerRunning,
   releaseSlot,
 }) => {
   // To track if the timer is running
-  const totalTime = 120; // Total time in seconds (2 minutes)
+  const totalTime = 20; // Total time in seconds (2 minutes)
 
-  const startTimer = () => {
-    setRemainingTime(totalTime);
-    setTimerRunning(true);
-  };
 
-  const stopTimer = () => {
-    setTimerRunning(false);
-  };
 
   const progressValue = (remainingTime / totalTime) * 100;
 
   return (
     <div className="h-[85vh] w-full flex pb-8 flex-col justify-between items-center">
       <ZoneNav selectedZone={bookedSlot ? bookedSlot[1] : 0} zones={zones} />
+
       <div className="flex justify-center flex-col my-4 items-center">
         <div className="flex justify-center items-center rounded-full w-60 h-full">
-          <CircularProgressbarWithChildren
+                <div className="absolute top-44 right-10 px-6 py-3 text-3xl bg-slate-300 dark:bg-slate-900 dark:text-white rounded-full">{speed} km/h</div>
+        
+                  <CircularProgressbarWithChildren
             value={progressValue}
             text={
               remainingTime > 0
@@ -99,8 +93,6 @@ const NavigateSlot = ({
           releaseSlot={releaseSlot}
           isParked={isParked}
           onSelect={onSelect}
-          startTimer={startTimer}
-          stopTimer={stopTimer}
           remainingTime={remainingTime}
           timerRunning={timerRunning}
         />
@@ -113,8 +105,6 @@ const Button = ({
   bookedSlot,
   isParked,
   onSelect,
-  startTimer,
-  stopTimer,
   timerRunning,
   remainingTime,
   releaseSlot,
@@ -132,7 +122,7 @@ const Button = ({
     );
   } else if (bookedSlot && !isParked) {
     return (
-      <button className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer">
+      <button className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer" onClick={()=>{onSelect('kiet')}}>
         NAVIGATE SLOT
       </button>
     );
@@ -142,29 +132,15 @@ const Button = ({
         <button
           className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer"
           onClick={() => {
-            startTimer(), releaseSlot();
+            releaseSlot();
           }}
         >
           FREE SLOT
         </button>
       );
-    } else if (timerRunning && remainingTime > 0) {
-      return (
-        <button
-          className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer"
-          onClick={stopTimer}
-        >
-          STOP
-        </button>
-      );
     } else {
       return (
-        <button
-          className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer"
-          onClick={startTimer}
-        >
-          FREE NOW
-        </button>
+       <></>
       );
     }
   }

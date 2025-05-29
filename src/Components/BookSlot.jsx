@@ -4,15 +4,77 @@ import Car from "../assets/car1.png";
 import vertical from "../assets/car.png";
 import { FaLongArrowAltUp } from "react-icons/fa";
 
-export default function BookSlot({ onSelect , slots:mySlots, bookedSlot, bookSlot }) {
+export const carNames = [
+  { name: "Honda Civic", type: "Sedan" },
+  { name: "Honda City", type: "Sedan" },
+  { name: "Honda BR-V", type: "SUV" },
 
+  { name: "Toyota Corolla", type: "Sedan" },
+  { name: "Toyota Yaris", type: "Sedan" },
+  { name: "Toyota Fortuner", type: "SUV" },
+  { name: "Toyota Hilux", type: "Pickup" },
+  { name: "Toyota Corolla Cross", type: "Hybrid SUV" },
+
+  { name: "Suzuki Alto", type: "Hatchback" },
+  { name: "Suzuki Cultus", type: "Hatchback" },
+  { name: "Suzuki Wagon R", type: "Hatchback" },
+  { name: "Suzuki Swift", type: "Hatchback" },
+  { name: "Suzuki Bolan", type: "MPV" },
+  { name: "Suzuki Ravi", type: "Mini Pickup" },
+
+  {
+    name: "Hyundai Elantra",
+    type: "Sedaundai Sonata",
+    type: "Sedaundai Tucson",
+    type: "SUundai Santa Fe",
+    type: "SUundai Staria",
+    type: "Vaundai Ioniq 5",
+    type: "EV SUundai Ioniq 6",
+    type: "EV Sedaia Picanto",
+    type: "Hatchbaca Sportage",
+    type: "SUa Sorento",
+    type: "SUa Carnival",
+    type: "MPhangan Alsvin",
+    type: "Sedan",
+  },
+  { name: "Changan Oshan X7", type: "SUV" },
+  { name: "Changan Karvaan", type: "MPV" },
+  { name: "Changan M9", type: "Pickup" },
+
+  { name: "MG HS", type: "SUV" },
+  { name: "MG ZS", type: "SUV" },
+  { name: "MG ZS EV", type: "Electric SUV" },
+
+  { name: "Haval H6", type: "SUV" },
+  { name: "Haval Jolion", type: "SUV" },
+  { name: "Ora 03", type: "Electric Hatchback" },
+
+  { name: "BAIC D20", type: "Hatchback" },
+  { name: "BAIC X25", type: "Compact SUV" },
+  { name: "BAIC BJ40", type: "Off-road SUV" },
+
+  { name: "Chery Tiggo 4 Pro", type: "SUV" },
+  { name: "Chery Tiggo 8 Pro", type: "SUV" },
+
+  { name: "FAW V2", type: "Hatchback" },
+  { name: "FAW XP-V", type: "Van" },
+  { name: "FAW Carrier", type: "Mini Pickup" },
+
+  { name: "Proton Saga", type: "Sedan" },
+  { name: "Proton X70", type: "SUV" },
+];
+
+export default function BookSlot({
+  onSelect,
+  slots: mySlots,
+  bookedSlot,
+  bookSlot,
+}) {
   const [selectedFloor, setSelectedFloor] = useState(0);
   const [animatingSlot, setAnimatingSlot] = useState(null);
 
-
-
   const handleSlotClick = (slot) => {
-    if (bookedSlot != null ) {
+    if (bookedSlot != null) {
       Swal.fire({
         icon: "warning",
         title: "Slot Already Booked",
@@ -30,35 +92,50 @@ export default function BookSlot({ onSelect , slots:mySlots, bookedSlot, bookSlo
       return;
     }
 
-    Swal.fire({
+    let mycarnames = {};
+    carNames.forEach((c, index) => {
+      mycarnames[index] = c.name + " " + "(" + c.type + ")";
+    });
+
+    const { value: fruit } = Swal.fire({
       title: `Reserve Slot ${slot.code}?`,
-      text: "Do you want to confirm your reservation?",
-      icon: "question",
+      input: "select",
+      inputOptions: mycarnames,
+      inputPlaceholder: "Select your cartype",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, Reserve it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        confirmReservation(slot);
-      }
+      inputValidator: (value) => {
+        return new Promise((resolve) => {
+          if (!value) {
+            resolve("Select a car type please");
+          } else {
+            confirmReservation(slot, carNames[value].type);
+            resolve()
+          }
+        });
+      },
     });
+    // Swal.fire({
+    //   title: `Reserve Slot ${slot.code}?`,
+    //   text: "Do you want to confirm your reservation?",
+    //   icon: "question",
+    //   showCancelButton: true,
+    // }).then((result) => {
+    //   if (result.isConfirmed) {
+    //     confirmReservation(slot);
+    //   }
+    // });
   };
 
-  const confirmReservation = (slot) => {
+  const confirmReservation = (slot, carType) => {
     setAnimatingSlot(slot.id);
     setTimeout(() => {
-
-      bookSlot(slot.code);
+      bookSlot(slot.code, carType);
       setAnimatingSlot(null);
-      Swal.fire({
-        icon: "success",
-        title: "Reservation Confirmed",
-        text: `Slot ${slot.code} is reserved for you!`,
-      });
       onSelect("yourSlot");
     }, 4000); // Adjust this timing to match your CSS animation duration
-
   };
 
   return (
@@ -72,15 +149,18 @@ export default function BookSlot({ onSelect , slots:mySlots, bookedSlot, bookSlo
         </div>
 
         {/* Floor Selector */}
-        <FloorSlider mySlots={mySlots} selectedFloor={selectedFloor} setSelectedFloor={setSelectedFloor} />
+        <FloorSlider
+          mySlots={mySlots}
+          selectedFloor={selectedFloor}
+          setSelectedFloor={setSelectedFloor}
+        />
       </div>
       {/* slot container */}
       <div className="grid h-4/6 overflow-y-scroll pt-40 pb-20 grid-cols-3 gap-4 px-4">
         {/* Odd Slots */}
         <div className="py-2 border-t  border-b border-l border-dotted border-gray-400">
           {/* Empty Slot (Above Odd Slots) */}
-          <div className="relative h-14 mb-4 cursor-pointer ml-2 p-4 rounded-se-full  shadow bg-gray-100">
-          </div>
+          <div className="relative h-14 mb-4 cursor-pointer ml-2 p-4 rounded-se-full  shadow bg-gray-100"></div>
 
           {/* Locked Slot (Above Odd Slots) */}
           <div className="relative h-14 mb-4">
@@ -98,7 +178,11 @@ export default function BookSlot({ onSelect , slots:mySlots, bookedSlot, bookSlo
                   onClick={() => handleSlotClick(slot)}
                   className={`cursor-pointer h-full ml-2 flex  rounded `}
                 >
-                  {slot.reserved ? <img src={Car} className="m-auto" /> : <div className="m-auto">Available</div>}
+                  {slot.reserved ? (
+                    <img src={Car} className="m-auto" />
+                  ) : (
+                    <div className="m-auto">Available</div>
+                  )}
                 </div>
                 {/* Divider Line */}
                 <div className="absolute inset-x-0 -bottom-2 h-[1px] border-t border-dotted border-gray-400" />
@@ -113,8 +197,7 @@ export default function BookSlot({ onSelect , slots:mySlots, bookedSlot, bookSlo
           </div>
 
           {/* Empty Slot (Below Odd Slots) */}
-          <div className="relative h-14 cursor-pointer ml-2 p-4 rounded-ee-full shadow bg-gray-100">
-          </div>
+          <div className="relative h-14 cursor-pointer ml-2 p-4 rounded-ee-full shadow bg-gray-100"></div>
         </div>
 
         {/* Spacer Column */}
@@ -128,19 +211,19 @@ export default function BookSlot({ onSelect , slots:mySlots, bookedSlot, bookSlo
                 ).length;
                 return freeSlotsCount === 1 ? (
                   <div className="flex gap-x-3">
-                    <p className="">{freeSlotsCount}  </p>
+                    <p className="">{freeSlotsCount} </p>
                     <p>SLOT</p>
                     <p>FREE</p>
                   </div>
                 ) : freeSlotsCount && freeSlotsCount > 0 ? (
                   <div className="flex gap-x-3">
-                    <p className="">{freeSlotsCount}  </p>
+                    <p className="">{freeSlotsCount} </p>
                     <p>SLOTS</p>
                     <p>FREE</p>
                   </div>
                 ) : (
                   <div className="flex text-red-300 gap-x-3">
-                    <p className="">NO  </p>
+                    <p className="">NO </p>
                     <p>SLOT</p>
                     <p>AVAILABLE</p>
                   </div>
@@ -148,30 +231,36 @@ export default function BookSlot({ onSelect , slots:mySlots, bookedSlot, bookSlo
               })()}
             </div>
           </div>
-          
+
           <div className="flex flex-col items-center text-center">
-            <FaLongArrowAltUp className="text-center text-gray-300" size={25}/>
+            <FaLongArrowAltUp className="text-center text-gray-300" size={25} />
             <div className="font-bold text-green-200 ">Entry</div>
           </div>
           {animatingSlot ? (
             <div className="absolute bottom-0 w-full">
-              <img 
-                src={vertical} 
-                className="animate-car-vanish opacity-60 mx-auto" 
-                height={0} 
+              <img
+                src={vertical}
+                className="animate-car-vanish opacity-60 mx-auto"
+                height={0}
                 width={40}
                 alt="Animating car"
               />
             </div>
-          ): (<div className=""><img src={vertical} className="opacity-60" height={0} width={40}/>
-          </div>)}
+          ) : (
+            <div className="">
+              <img
+                src={vertical}
+                className="opacity-60"
+                height={0}
+                width={40}
+              />
+            </div>
+          )}
         </div>
         {/* Even Slots */}
         <div className="py-2 border-t border-b border-r border-dotted border-gray-400">
           {/* Empty Slot (Above Even Slots) */}
-          <div className="relative mr-2 h-14 mb-4 cursor-pointer p-4 rounded-ss-full shadow bg-gray-100">
-
-          </div>
+          <div className="relative mr-2 h-14 mb-4 cursor-pointer p-4 rounded-ss-full shadow bg-gray-100"></div>
 
           {/* Locked Slot (Above Even Slots) */}
           <div className="relative mr-2  h-14 mb-4">
@@ -189,7 +278,11 @@ export default function BookSlot({ onSelect , slots:mySlots, bookedSlot, bookSlo
                   onClick={() => handleSlotClick(slot)}
                   className={`cursor-pointer h-full mr-2 flex  rounded `}
                 >
-                  {slot.reserved ? <img src={Car} className="m-auto rotate-180" /> : <div className="m-auto">Available</div>}
+                  {slot.reserved ? (
+                    <img src={Car} className="m-auto rotate-180" />
+                  ) : (
+                    <div className="m-auto">Available</div>
+                  )}
                 </div>
                 {/* Divider Line */}
                 <div className="absolute inset-x-0 -bottom-2 h-[1px] border-t border-dotted border-gray-400" />
@@ -205,8 +298,7 @@ export default function BookSlot({ onSelect , slots:mySlots, bookedSlot, bookSlo
 
           {/* Empty Slot (Below Even Slots) */}
           <div className="relative mr-2 cursor-pointer p-4 rounded-es-full h-14 shadow bg-gray-100">
-            <div className="">
-            </div>
+            <div className=""></div>
           </div>
         </div>
       </div>
@@ -214,12 +306,7 @@ export default function BookSlot({ onSelect , slots:mySlots, bookedSlot, bookSlo
   );
 }
 
-
-
-
-
 const FloorSlider = ({ mySlots, selectedFloor, setSelectedFloor }) => {
-
   const [tabWidth, setTabWidth] = useState(60);
   const [tabPosition, setTabPosition] = useState(35);
 
@@ -247,7 +334,7 @@ const FloorSlider = ({ mySlots, selectedFloor, setSelectedFloor }) => {
           onClick={() => handleFloorClick(index)}
           className={`flex py-3 px-2 cursor-pointer items-center justify-center text-base font-semibold relative`}
         >
-          <span>{floor.floor}</span>
+          <span>{floor.floor == "CS" ? "COCIS" : "COMS"}</span>
         </div>
       ))}
 
@@ -262,4 +349,3 @@ const FloorSlider = ({ mySlots, selectedFloor, setSelectedFloor }) => {
     </div>
   );
 };
-

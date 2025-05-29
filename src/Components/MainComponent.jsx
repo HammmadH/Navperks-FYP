@@ -1,6 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "../assets/Logo.jpg";
+import { getDeviceSpeed } from "../getSpeed";
 export default function MainComponent({ onSelect, announcements }) {
+  const [c1, setC1] =useState(0)
+  const getSpeeed = async ()=>{
+    const speed = await getDeviceSpeed(3)
+    setC1(speed)
+    return speed
+  }
+  useEffect(()=>{
+    getSpeeed();
+  },[])
   return (
     <div className='flex flex-col justify-start overflow-auto'>
       <div className='flex flex-col -mt-5 justify-start items-center bg-none border-b-black '>
@@ -9,6 +19,8 @@ export default function MainComponent({ onSelect, announcements }) {
       </div>
       <div className="py-5 mt-10 h-full flex flex-col gap-y-5 my-auto ">
         <h1 className="font-bold text-4xl px-5">Hi,</h1>
+        {/* <div className="absolute top-10 right-10 px-3 py-1 bg-slate-300 dark:bg-slate-900 dark:text-white rounded-full">{c1} km/h</div> */}
+     
           {announcements?.map((a) => {
 
             return (

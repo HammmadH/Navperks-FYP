@@ -23,7 +23,7 @@ const hideScrollbarClass = `
   }
 `;
 
-const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
+const ReportTale = ({ data, isOpen, setIsOpen, setDownload, getAnalytics }) => {
   const [sortColumn, setSortColumn] = useState("reservationId");
   const [sortDirection, setSortDirection] = useState("asc");
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,13 +34,12 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
   const [advancedFilters, setAdvancedFilters] = useState({
     reservationId: "",
     slotCode: "",
+    carType: "",
     startDate: "",
     endDate: "",
     minDuration: "",
     maxDuration: "",
   });
-
-
 
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "short", day: "numeric" };
@@ -81,6 +80,8 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
           item.reservationId
             .toString()
             .includes(advancedFilters.reservationId)) &&
+        (!advancedFilters.carType ||
+          item.carType.toLowerCase().includes(advancedFilters.carType)) &&
         (!advancedFilters.slotCode ||
           item.slotCode
             .toLowerCase()
@@ -129,6 +130,8 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
         "S.No.",
         "Reservation Id",
         "Slot Code",
+        "Car Type",
+        "Car Speed",
         "Date",
         "Time In",
         "Time Out",
@@ -138,10 +141,14 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
         index + 1,
         item.reservationId,
         item.slotCode,
+        item.carType,
+        item.carSpeed ? item.carSpeed : "0",
         formatDate(item.reservedTime),
         formatTime(item.reservedTime),
         item.releasedTime ? formatTime(item.releasedTime) : "Ongoing",
-        calculateDuration(item.reservedTime, item.releasedTime),
+        item.releasedTime
+          ? calculateDuration(item.reservedTime, item.releasedTime)
+          : "Ongoing",
       ]),
     ]
       .map((row) => row.join(","))
@@ -159,16 +166,17 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
       document.body.removeChild(link);
     }
   };
-  useEffect(()=>{
-    setDownload({handleSave})
-  },[handleSave])
+  useEffect(() => {
+    setDownload({ handleSave });
+  }, [handleSave]);
 
   return (
     <>
       <style>{hideScrollbarClass}</style>
       <div
-        className={`fixed top-0 inset-x-0 w-screen h-full   z-[99] bg-white text-black transform ${isOpen ? "translate-y-0" : "translate-y-full"
-          } transition-transform duration-700 ease-in-out`}
+        className={`fixed top-0 inset-x-0 w-screen h-full   z-[99] bg-white text-black transform ${
+          isOpen ? "translate-y-0" : "translate-y-full"
+        } transition-transform duration-700 ease-in-out`}
       >
         <div className="w-full bg-white shadow-lg rounded-lg min-h-screen overflow-hidden">
           {/* Header */}
@@ -181,7 +189,7 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
                 className="text-gray-500 hover:text-gray-700 absolute top-2 right-2"
                 onClick={() => setIsOpen(false)}
               >
-                <X className="p-2 rounded-full bg-gray-100" size={35}/>
+                <X className="p-2 rounded-full bg-gray-100" size={35} />
               </button>
             </div>
             {/* Search and Filters */}
@@ -205,13 +213,17 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
               </button>
               <div className="flex space-x-2">
                 <button
-                  onClick={() => setZoomLevel((prev) => Math.min(prev + 10, 200))}
+                  onClick={() =>
+                    setZoomLevel((prev) => Math.min(prev + 10, 200))
+                  }
                   className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200"
                 >
                   <ZoomIn className="h-5 w-5" />
                 </button>
                 <button
-                  onClick={() => setZoomLevel((prev) => Math.max(prev - 10, 50))}
+                  onClick={() =>
+                    setZoomLevel((prev) => Math.max(prev - 10, 50))
+                  }
                   className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200"
                 >
                   <ZoomOut className="h-5 w-5" />
@@ -223,7 +235,7 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
                   <Save className="h-5 w-5" />
                 </button>
                 <button
-                  onClick={() => window.location.reload()}
+                  onClick={() => getAnalytics()}
                   className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200"
                 >
                   <RotateCw className="h-5 w-5" />
@@ -283,7 +295,10 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
             )}
             {/* Table */}
             <div className="overflow-x-scroll">
-              <div style={{ zoom: `${zoomLevel}%` }} className="overflow-x-scroll hide-scrollbar">
+              <div
+                style={{ zoom: `${zoomLevel}%` }}
+                className="overflow-x-scroll hide-scrollbar"
+              >
                 <table className="min-w-full divide-y divide-gray-200 table-fixed">
                   <thead className="bg-gray-50">
                     <tr className="flex">
@@ -301,6 +316,15 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
                         onClick={() => handleSort("slotCode")}
                       >
                         Slot Code
+                      </th>
+                      <th
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%] flex-shrink-0 cursor-pointer"
+                        onClick={() => handleSort("slotCode")}
+                      >
+                        Car Type
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%] flex-shrink-0 cursor-pointer">
+                        Car Speed
                       </th>
                       <th
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%] flex-shrink-0 cursor-pointer"
@@ -326,7 +350,7 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
                     </tr>
                   </thead>
                   <tbody
-                    className="bg-white divide-y divide-gray-200 overflow-y-auto hide-scrollbar"
+                    className="bg-whiteoverflow-y-auto hide-scrollbar"
                     style={{
                       maxHeight: "calc(100vh - 300px)",
                       display: "block",
@@ -345,6 +369,12 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-[15%] flex-shrink-0">
                           {reservation.slotCode}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-[15%] flex-shrink-0">
+                          {reservation.carType}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-[15%] flex-shrink-0">
+                          {reservation.carSpeed ? reservation.carSpeed : "0"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-[15%] flex-shrink-0">
                           {formatDate(reservation.reservedTime)}
@@ -396,8 +426,6 @@ const ReportTale = ({ data, isOpen, setIsOpen, setDownload }) => {
       </div>
     </>
   );
-  
-  
 };
 
 export default ReportTale;

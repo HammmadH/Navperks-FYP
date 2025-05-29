@@ -9,6 +9,11 @@ import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
 import { useEffect } from "react";
 import { method } from "lodash";
+import { carNames } from "../BookSlot";
+import car1 from "../../assets/SEDAN.jpeg"
+import car2 from "../../assets/SUV2.jpeg"
+import car3 from "../../assets/HATCHBACK.jpeg"
+import car4 from "../../assets/PICKUP.jpeg"
 
 const initialSlots = [
   {
@@ -66,7 +71,7 @@ const AdminDashboard = () => {
     reservationCount: 1,
   });
 
-const [data, setData] = useState([])
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     if (!(adminData == null)) localStorage.setItem("admin", adminData);
@@ -144,35 +149,44 @@ const [data, setData] = useState([])
       const data = await rushedData.json();
       const rh = data.find((d) => {
         return d.statisticType === "Rush Hour";
-      })
+      });
       setRushedHour(rh);
       const rd = data.find((d) => {
         return d.statisticType === "Rush Day";
-      })
+      });
       setRushedDay(rd);
     } else {
       console.log("first");
     }
   };
 
-const getAnalytics = async()=>{
-  const response = await fetch( `${import.meta.env.VITE_BACKEND_URL}/Reservation/api/reservationsdetails`)
-  if(response.ok){
-    const data = await response.json()
-    setData(data)
-  }
-}
+  const getAnalytics = async () => {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/Reservation/api/reservationsdetails`
+    );
+    if (response.ok) {
+      const data = await response.json();
+      setData(data);
+    }
+  };
 
   useEffect(() => {
     fetchannouncements();
-    getAllSlots();
-    calculateRushedData(); 
-    getAnalytics();
   }, []);
 
-  useEffect(() => {
-  }, []);
+  useEffect(()=>{
+     getAllSlots();
+    
+    
+  },[])
 
+  useEffect(()=>{
+    calculateRushedData();
+  },[])
+
+  useEffect(()=>{
+getAnalytics();
+  },[])
 
   const loginAsAdmin = async (data) => {
     try {
@@ -338,7 +352,8 @@ const getAnalytics = async()=>{
     }
   };
 
-  const bookSlot = async (slot, carNumber) => {
+  const bookSlot = async (slot, carNumber, carType) => {
+    console.log("book slot",carType)
     let userId = null;
     try {
       const response = await fetch(
@@ -357,6 +372,7 @@ const getAnalytics = async()=>{
         toast.success("User Registered Successfully", {
           position: "top-right",
         });
+        getAnalytics();
         const data = await response.json();
         userId = data.userId;
       } else {
@@ -374,8 +390,10 @@ const getAnalytics = async()=>{
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
+              userId: 0,
               userAId: userId,
               slotCode: slot.code,
+              carType
             }),
           }
         );
@@ -412,14 +430,17 @@ const getAnalytics = async()=>{
             userId: 0,
             userAId: 0,
             slotCode: "string",
+            carType: "string",
           }),
         }
       );
       if (response.ok) {
-        const message = await response.text();
-        toast.success(`${message}`, {
+        const message = await response.json();
+        // alert(message.message)
+        toast.success(`${message.message}`, {
           position: "top-right",
         });
+        getAnalytics();
         getAllSlots();
       } else {
         toast.error("Failed to Release Slot", {
@@ -433,6 +454,13 @@ const getAnalytics = async()=>{
     }
   };
   const handleSlotClick = (slot) => {
+    // console.log(/slot)
+
+     let mycarnames = {};
+      carNames.forEach((c, index) => {
+        mycarnames[index] = c.name + " " + "(" + c.type + ")";
+      });
+// let val1;
     if (slot.reserved) {
       Swal.fire({
         title: "Empty Slot",
@@ -450,29 +478,95 @@ const getAnalytics = async()=>{
         },
       }).then((result) => {
         if (result.isConfirmed) {
+          // val1 = result.value
+
           emptySlot(result.value);
         }
       });
     } else {
-      Swal.fire({
-        title: "Book Slot",
-        text: "Enter your car number to book this slot:",
-        icon: "info",
-        input: "text", // Input field for car number
-        inputPlaceholder: "Enter car number",
-        showCancelButton: true,
-        confirmButtonText: "Book Slot",
-        preConfirm: (carNumber) => {
-          if (!carNumber) {
-            Swal.showValidationMessage("Car number is required!");
-          }
-          return carNumber; // Return car number to `.then()`
-        },
-      }).then((result) => {
-        if (result.isConfirmed) {
-          bookSlot(slot, result.value); // Use the entered car number
-        }
-      });
+      let value1;
+      let userRegistered = false;
+
+     
+
+
+
+    // Now show the image-based selection
+  
+    Swal.fire({
+  title: "Book Slot",
+  text: "Enter your car number to book this slot:",
+  input: "text",
+  inputPlaceholder: "Enter car number",
+  showCancelButton: true,
+  confirmButtonText: "Book Slot",
+  didOpen: () => {
+    const input = Swal.getInput();
+    input.setAttribute("autocomplete", "off");
+    input.setAttribute("maxlength", "8"); // Prevent typing after 8 characters
+
+    input.addEventListener("input", () => {
+      if (input.value.length > 8) {
+        input.value = input.value.slice(0, 8);
+      }
+    });
+  },
+  preConfirm: (carNumber) => {
+    if (!carNumber) {
+      Swal.showValidationMessage("Car number is required!");
+    } else if (carNumber.length > 8) {
+      Swal.showValidationMessage("Maximum 8 characters are allowed");
+    }
+    return carNumber;
+  },
+}).then((result) => {
+  if (result.isConfirmed) {
+    const carNumberValue = result.value;
+    userRegistered = true;
+
+    // Now show the image-based selection
+   Swal.fire({
+  title: `Reserve Slot ${slot.code}?`,
+  html: `
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 10px;">
+      <div class="car-option" data-value="sedan" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+        <img src=${car1} style="width: 80px;" />
+        <div style="margin-top: 8px; font-weight: 500;">Sedan</div>
+      </div>
+      <div class="car-option" data-value="suv" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+        <img src=${car2} style="width: 80px;" />
+        <div style="margin-top: 8px; font-weight: 500;">Suv</div>
+      </div>
+      <div class="car-option" data-value="hatchback" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+        <img src=${car3} style="width: 80px;" />
+        <div style="margin-top: 8px; font-weight: 500;">Hatchback</div>
+      </div>
+      <div class="car-option" data-value="pickup" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+        <img src=${car4} style="width: 80px;" />
+        <div style="margin-top: 8px; font-weight: 500;">Pickup</div>
+      </div>
+    </div>
+  `,
+  showConfirmButton: false,
+  showCancelButton: true,
+  didOpen: () => {
+    const options = Swal.getHtmlContainer().querySelectorAll(".car-option");
+    options.forEach((option) =>
+      option.addEventListener("click", () => {
+        const selectedType = option.getAttribute("data-value");
+        Swal.close();
+        bookSlot(slot, carNumberValue, selectedType);
+      })
+    );
+  },
+});
+
+  }
+});
+
+      if (userRegistered) {
+        
+      }
     }
   };
 
@@ -487,6 +581,7 @@ const getAnalytics = async()=>{
             Accept: "*/*",
           },
           body: JSON.stringify({
+            username: adminData,
             newPassword: data,
           }),
         }
@@ -554,6 +649,7 @@ const getAnalytics = async()=>{
             rushedDay={rushedDay}
             rushedHour={rushedHour}
             data={data}
+            getAnalytics={getAnalytics}
           />
         );
       default:

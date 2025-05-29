@@ -16,7 +16,7 @@ import ReportTable from "./ReportTable";
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
 
-function Account({adminData, updatePassword, rushedDay, rushedHour, data}) {
+function Account({adminData, updatePassword, rushedDay, rushedHour, data, getAnalytics}) {
   const [download, setDownload] = useState(null)
   const [isEditAccountDetailsOpen, setIsEditAccountDetailsOpen] =
     useState(false);
@@ -297,7 +297,7 @@ function Account({adminData, updatePassword, rushedDay, rushedHour, data}) {
           </section></div>
 
       </div>
-      <ReportTable data={data} isOpen={isReportOpen} setIsOpen={setIsReportOpen} setDownload={setDownload}/>
+      <ReportTable data={data} isOpen={isReportOpen} setIsOpen={setIsReportOpen} setDownload={setDownload} getAnalytics={getAnalytics}/>
     </div>
   );
 }

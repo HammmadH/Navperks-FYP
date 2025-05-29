@@ -1,5 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { IoHomeOutline, IoClipboardOutline, IoPlayOutline, IoMapOutline } from 'react-icons/io5';
+import React, { useState, useEffect } from "react";
+import {
+  IoHomeOutline,
+  IoClipboardOutline,
+  IoPlayOutline,
+  IoMapOutline,
+} from "react-icons/io5";
 import FirstComponent from "./Components/FirstComponent";
 import SecondComponent from "./Components/SecondComponent";
 import MainComponent from "./Components/MainComponent";
@@ -9,14 +14,15 @@ import NavigateSlot from "./Components/NavigateSlot";
 import BottomBar from "./Components/BottomBar";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { getDeviceSpeed, sendSpeed } from "./getSpeed";
+import GPSAccessPrompt from "./Components/GPSAccessPrompt";
 
 const initialResponse = [
   {
     id: 1,
     announcementText: "There isn't any event or announcement for now in KIET.",
-  }
-]
+  },
+];
 
 const initialSlots = [
   {
@@ -43,19 +49,19 @@ const initialSlots = [
   },
 ];
 
-
-
 function App() {
   const [step, setStep] = useState(1);
-  
-  const [selectedComponent, setSelectedComponent] = useState('home'); 
+  const [selectedComponent, setSelectedComponent] = useState("home");
   const [slots, setMySlots] = useState(initialSlots);
-    const [announcements, setAnnouncements] = useState(initialResponse);
+  const [announcements, setAnnouncements] = useState(initialResponse);
+  const [speed, setSpeed] = useState(0);
+  const [showBottomBar, setShowBottomBar] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
-  const [showBottomBar, setShowBottomBar] = useState(true); 
-  const [lastScrollY, setLastScrollY] = useState(0); 
+  const [bookedSlot, setBookedSlot] = useState(
+    localStorage.getItem("bookedSlot")
+  );
 
-  const [bookedSlot, setBookedSlot] = useState(localStorage.getItem("bookedSlot"));
   const [isParked, setIsParked] = useState(() => {
     const isParkedValue = localStorage.getItem("isParked");
     const bookedSlotValue = localStorage.getItem("bookedSlot");
@@ -63,41 +69,83 @@ function App() {
     // Check if both values exist and are valid, otherwise set default to false
     return isParkedValue && bookedSlotValue ? JSON.parse(isParkedValue) : false;
   });
+
+  const [carType, setCarType] = useState(() => {
+    const isParkedValue = localStorage.getItem("isParked");
+    const bookedSlotValue = localStorage.getItem("bookedSlot");
+
+    const cartypeValue = localStorage.getItem("carType");
+
+    return isParkedValue &&
+      bookedSlotValue &&
+      cartypeValue &&
+      cartypeValue.length > 0
+      ? JSON.parse(cartypeValue)
+      : "";
+  });
   const [remainingTime, setRemainingTime] = useState(0); // Timer state
   const [timerRunning, setTimerRunning] = useState(false);
 
+  const [locationAllowed, setLocationAllowed] = useState(true);
+  const [watchId, setWatchId] = useState(null);
 
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      const id = navigator.geolocation.watchPosition(
+        (position) => {
+          setLocationAllowed(true);
+        },
+        (error) => {
+          console.warn("Location error:", error);
+          setLocationAllowed(false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
 
-  const getUserConsent = async()=>{
-    try{
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/User`,{
-        "method": "POST",
+      setWatchId(id);
+    } else {
+      setLocationAllowed(false);
+    }
+
+    return () => {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, []);
+
+  const getUserConsent = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/User`, {
+        method: "POST",
         headers: {
           "CONTENT-TYPE": "application/json",
         },
         body: JSON.stringify({
-          "consent": true
-        })
-      })
+          consent: true,
+        }),
+      });
       if (response.ok) {
-        const data = await response.json()
-        localStorage.setItem("userAgreement", data.userId)
-        toast.success("Thanks for coming.",{
-          position: "top-right"
-        })
+        const data = await response.json();
+        localStorage.setItem("userAgreement", data.userId);
+        toast.success("Thanks for coming.", {
+          position: "top-right",
+        });
+      } else {
+        toast.error("Server Error. please wait", {
+          position: "top-right",
+        });
       }
-      else{
-        toast.error("Server Error. please wait",{
-          position: "top-right"
-        })
-      }
-    }catch(err){
-      toast.error("Server Error. please wait",{
-        position: "top-right"
-      })
+    } catch (err) {
+      toast.error("Server Error. please wait", {
+        position: "top-right",
+      });
     }
-   
-  }
+  };
 
   const fetchannouncements = async () => {
     try {
@@ -115,7 +163,7 @@ function App() {
         const result = await response.json();
         if (result.length > 0) {
           setAnnouncements(result); // Ensure this function is defined in your component
-        }else {
+        } else {
           setAnnouncements(initialResponse);
         }
       } else {
@@ -163,18 +211,22 @@ function App() {
   };
 
   useEffect(() => {
-    fetchannouncements()
-    getAllSlots()
+    fetchannouncements();
+    getAllSlots();
   }, []);
 
   useEffect(() => {
-    if (bookedSlot == null) localStorage.removeItem("bookedSlot")
+    if (bookedSlot == null) localStorage.removeItem("bookedSlot");
     else localStorage.setItem("bookedSlot", bookedSlot);
   }, [bookedSlot]);
 
   useEffect(() => {
     localStorage.setItem("isParked", isParked);
   }, [isParked]);
+
+  useEffect(() => {
+    localStorage.setItem("carType", carType);
+  }, [carType]);
 
   useEffect(() => {
     let timerInterval;
@@ -193,7 +245,7 @@ function App() {
   }, [timerRunning, remainingTime, setBookedSlot, setIsParked]);
 
   useEffect(() => {
-    const userAgreed = localStorage.getItem('userAgreement') // Check if user has agreed
+    const userAgreed = localStorage.getItem("userAgreement"); // Check if user has agreed
 
     if (userAgreed) {
       setStep(3); // Directly show MainComponent if user agreed
@@ -208,7 +260,8 @@ function App() {
 
     // Hide bottom bar on scroll when on MainComponent
     const handleScroll = () => {
-      if (selectedComponent === 'home') {  // Only apply scroll behavior when on MainComponent
+      if (selectedComponent === "home") {
+        // Only apply scroll behavior when on MainComponent
         if (window.scrollY > lastScrollY) {
           setShowBottomBar(false); // Scrolling down, hide bottom bar
         } else {
@@ -225,73 +278,93 @@ function App() {
     };
   }, [lastScrollY, selectedComponent]);
 
-  const bookSlot = async(slotCode) => {
+  const bookSlot = async (slotCode, carType) => {
     setIsParked(false);
-    try{
-      const uID = JSON.parse(localStorage.getItem("userAgreement"))
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Reservation`,{
-       "method": "POST",
-        headers: {
-          "CONTENT-TYPE": "application/json",
-        },
-        body: JSON.stringify({
-          userId: uID, slotCode
-        })
-      })
-      if(response.ok){
-        const data = await response.json()
-        localStorage.setItem("reservationId",data.reservationId)
-        toast.success(`${data.message}`,{
-          position: "top-right"
-        })
+    try {
+      const uID = JSON.parse(localStorage.getItem("userAgreement"));
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/Reservation`,
+        {
+          method: "POST",
+          headers: {
+            "CONTENT-TYPE": "application/json",
+          },
+          body: JSON.stringify({
+            userId: uID,
+            slotCode,
+            carType,
+          }),
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("reservationId", data.reservationId);
+        localStorage.setItem("carType", carType)
+        toast.success(`${data.message}`, {
+          position: "top-right",
+        });
         setBookedSlot(slotCode);
-        getAllSlots()
+        getAllSlots();
         setIsParked(false);
         setTimeout(() => {
           setIsParked(true);
         }, 10 * 1000);
-      } else if(response.status === 409){
-        toast.error("You have already booked a slot",{
-          position: "top-right"
-        })
+        const speed1 = await getDeviceSpeed(3);
+        setSpeed(speed1);
+        const sResponse = await sendSpeed(speed1, data.reservationId);
+        clg(sResponse);
+      } else if (response.status === 409) {
+        toast.error("You have already booked a slot", {
+          position: "top-right",
+        });
       }
-    } catch{
-      toast.error("Server Error. please wait",{
-        position: "top-right"
-      })
+    } catch {
+      toast.error("Server Error. please wait", {
+        position: "top-right",
+      });
     }
-    
-   
   };
 
-  const releaseSlot = async()=>{
-    try{
-      const reservationid = JSON.parse(localStorage.getItem("reservationId"))
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Reservation/${reservationid}`,{
-        "method": "PUT",
-         headers: {
-           "CONTENT-TYPE": "application/json",
-         },
-         body: JSON.stringify({
-          "userId": 0,
-          "userAId": 0,
-          "slotCode": "string"
-        })
-       });
-       if(response.ok){
-        toast.success("Slot Released",{
-          position: "top-right"
-        })
-        getAllSlots()
-       } else{
-        toast.error("Server error",{position:"top-right"})
-       }
-  }
-catch(error){
-  toast.error(`Server error`,{
-    position: "top-right"
-  })
-}}
+  const startTimer = () => {
+    setRemainingTime(totalTime);
+    setTimerRunning(true);
+  };
+
+
+  const releaseSlot = async () => {
+    try {
+      const reservationid = JSON.parse(localStorage.getItem("reservationId"));
+      const cartypee = JSON.parse(localStorage.getItem("carType"));
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/Reservation/${reservationid}`,
+        {
+          method: "PUT",
+          headers: {
+            "CONTENT-TYPE": "application/json",
+          },
+          body: JSON.stringify({
+            userId: 0,
+            userAId: 0,
+            slotCode: "string",
+            carType: cartypee
+          }),
+        }
+      );
+      if (response.ok) {
+        startTimer()
+        toast.success("Slot Released", {
+          position: "top-right",
+        });
+        getAllSlots();
+      } else {
+        toast.error("Server error", { position: "top-right" });
+      }
+    } catch (error) {
+      toast.error(`Server error`, {
+        position: "top-right",
+      });
+    }
+  };
 
   const handleContinue = () => {
     setStep(3); // Move to MainComponent
@@ -302,30 +375,85 @@ catch(error){
   };
 
   const handleHomeClick = () => {
-    setSelectedComponent('home'); // Return to MainComponent
+    setSelectedComponent("home"); // Return to MainComponent
   };
 
   // Dynamic rendering of components based on selected component
   const renderComponent = () => {
     switch (selectedComponent) {
-      case 'home':
-        return <MainComponent  announcements={announcements} onSelect={handleSelectComponent} />;
-      case 'bookSlot':
-        return <BookSlot onSelect={handleSelectComponent} slots={slots} bookedSlot={bookedSlot} bookSlot={bookSlot} />;
-      case 'yourSlot':
-        return <NavigateSlot onSelect={handleSelectComponent}  releaseSlot={releaseSlot} bookedSlot={bookedSlot} isParked={isParked} remainingTime={remainingTime} setRemainingTime={setRemainingTime} timerRunning={timerRunning} setTimerRunning={setTimerRunning} />;
-      case 'kiet':
-        return <NavigateKiet onHomeClick={handleHomeClick} onSelect={handleSelectComponent} />;
+      case "home":
+        return (
+          <>
+            <GPSAccessPrompt show={locationAllowed} />
+            <MainComponent
+              announcements={announcements}
+              onSelect={handleSelectComponent}
+            />
+            <GPSAccessPrompt show={locationAllowed} />
+          </>
+        );
+      case "bookSlot":
+        return (
+          <>
+            <GPSAccessPrompt show={locationAllowed} />
+            <BookSlot
+              onSelect={handleSelectComponent}
+              slots={slots}
+              bookedSlot={bookedSlot}
+              bookSlot={bookSlot}
+            />
+          </>
+        );
+      case "yourSlot":
+        return (
+          <>
+            <GPSAccessPrompt show={locationAllowed} />
+            <NavigateSlot
+              speed={speed}
+              onSelect={handleSelectComponent}
+              releaseSlot={releaseSlot}
+              bookedSlot={bookedSlot}
+              isParked={isParked}
+              remainingTime={remainingTime}
+              setRemainingTime={setRemainingTime}
+              timerRunning={timerRunning}
+              setTimerRunning={setTimerRunning}
+            />
+          </>
+        );
+      case "kiet":
+        return (
+          <>
+            <GPSAccessPrompt show={locationAllowed} />
+            <NavigateKiet
+              onHomeClick={handleHomeClick}
+              onSelect={handleSelectComponent}
+            />
+          </>
+        );
       default:
-        return <MainComponent  announcements={announcements} onSelect={handleSelectComponent} />;
+        return (
+          <>
+            <GPSAccessPrompt show={locationAllowed} />
+            <MainComponent
+              announcements={announcements}
+              onSelect={handleSelectComponent}
+            />
+          </>
+        );
     }
   };
 
   return (
-    <div className='h-full overflow-none bg-white [::webkit-scrollbar]:0'>
+    <div className="h-full overflow-none bg-white [::webkit-scrollbar]:0">
       <ToastContainer />
       {step === 1 && <FirstComponent />}
-      {step === 2 && <SecondComponent onContinue={handleContinue} getUserConsent={getUserConsent}/>}
+      {step === 2 && (
+        <SecondComponent
+          onContinue={handleContinue}
+          getUserConsent={getUserConsent}
+        />
+      )}
       {step === 3 && renderComponent()}
       {step === 3 && showBottomBar && (
         <BottomBar
