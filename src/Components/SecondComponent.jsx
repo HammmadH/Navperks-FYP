@@ -1,10 +1,10 @@
 import { useState } from "react";
 import logo from "../assets/logo2.jpg"
-export default function SecondComponent({ onContinue }) {
+export default function SecondComponent({ onContinue , getUserConsent}) {
   const [isChecked, setIsChecked] = useState(false);
 
   const handleAgree = () => {
-    localStorage.setItem('userAgreement', 'true');
+    getUserConsent()
     onContinue(); // Proceed to MainComponent
   };
 

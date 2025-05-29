@@ -3,40 +3,47 @@ import Car from "../assets/car.png";
 import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import RadialSeparators from "./RadialSeparators";
-import useParking from "../Context/useParkingContext";
 
 const zones = [
-  { id: 1, label: "FLOOR 1" },
-  { id: 2, label: "FLOOR 2" },
-  { id: 3, label: "FLOOR 3" },
+  { id: 'S', label: "COCIS" },
+  { id: 'M', label: "COMS" },
 ];
 
-const NavigateSlot = ({ onSelect }) => {
-  const { bookedSlot, setBookedSlot, setIsParked, isParked , remainingTime, setRemainingTime , timerRunning, setTimerRunning } = useParking();
-// To track if the timer is running
-  const totalTime = 120; // Total time in seconds (2 minutes)
+const NavigateSlot = ({
+  onSelect,
+  bookedSlot,
+  isParked,
+  speed,
+  remainingTime,
+  timerRunning,
+  releaseSlot,
+}) => {
+  // To track if the timer is running
+  const totalTime = 20; // Total time in seconds (2 minutes)
 
-  
 
-  const startTimer = () => {
-    setRemainingTime(totalTime);
-    setTimerRunning(true);
-  };
-
-  const stopTimer = () => {
-    setTimerRunning(false);
-  };
 
   const progressValue = (remainingTime / totalTime) * 100;
 
   return (
     <div className="h-[85vh] w-full flex pb-8 flex-col justify-between items-center">
       <ZoneNav selectedZone={bookedSlot ? bookedSlot[1] : 0} zones={zones} />
+
       <div className="flex justify-center flex-col my-4 items-center">
         <div className="flex justify-center items-center rounded-full w-60 h-full">
-          <CircularProgressbarWithChildren
+                <div className="absolute top-44 right-10 px-6 py-3 text-3xl bg-slate-300 dark:bg-slate-900 dark:text-white rounded-full">{speed} km/h</div>
+        
+                  <CircularProgressbarWithChildren
             value={progressValue}
-            text={remainingTime > 0 ? `` : isParked ? "Parked" : bookedSlot ? "Park" : "Free"}
+            text={
+              remainingTime > 0
+                ? ``
+                : isParked
+                ? "Parked"
+                : bookedSlot
+                ? "Park"
+                : "Free"
+            }
             strokeWidth={8}
             styles={{
               trail: {
@@ -73,7 +80,8 @@ const NavigateSlot = ({ onSelect }) => {
           </div>
         ) : (
           ""
-        )}{remainingTime > 0 ? (
+        )}
+        {remainingTime > 0 ? (
           <div className="flex flex-col items-center text-[#17502d]">
             <div className="text-2xl font-bold">{remainingTime} s</div>
           </div>
@@ -82,10 +90,9 @@ const NavigateSlot = ({ onSelect }) => {
         )}
         <Button
           bookedSlot={bookedSlot}
+          releaseSlot={releaseSlot}
           isParked={isParked}
           onSelect={onSelect}
-          startTimer={startTimer}
-          stopTimer={stopTimer}
           remainingTime={remainingTime}
           timerRunning={timerRunning}
         />
@@ -94,7 +101,14 @@ const NavigateSlot = ({ onSelect }) => {
   );
 };
 
-const Button = ({ bookedSlot, isParked, onSelect, startTimer, stopTimer, timerRunning, remainingTime }) => {
+const Button = ({
+  bookedSlot,
+  isParked,
+  onSelect,
+  timerRunning,
+  remainingTime,
+  releaseSlot,
+}) => {
   if (!bookedSlot) {
     return (
       <button
@@ -103,12 +117,12 @@ const Button = ({ bookedSlot, isParked, onSelect, startTimer, stopTimer, timerRu
           onSelect("bookSlot");
         }}
       >
-        BOOK SLOT 
+        BOOK SLOT
       </button>
     );
   } else if (bookedSlot && !isParked) {
     return (
-      <button className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer">
+      <button className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer" onClick={()=>{onSelect('kiet')}}>
         NAVIGATE SLOT
       </button>
     );
@@ -116,29 +130,17 @@ const Button = ({ bookedSlot, isParked, onSelect, startTimer, stopTimer, timerRu
     if (!timerRunning) {
       return (
         <button
-          className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer" 
-          onClick={startTimer}
+          className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer"
+          onClick={() => {
+            releaseSlot();
+          }}
         >
           FREE SLOT
         </button>
       );
-    } else if (timerRunning && remainingTime > 0) {
-      return (
-        <button
-          className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer"
-          onClick={stopTimer}
-        >
-          STOP
-        </button>
-      );
     } else {
       return (
-        <button
-          className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer"
-          onClick={startTimer}
-        >
-          FREE NOW
-        </button>
+       <></>
       );
     }
   }
@@ -149,25 +151,28 @@ export default NavigateSlot;
 function ZoneNav({ selectedZone, zones, className, ...props }) {
   return (
     <nav
-      className={`relative flex items-center w-full shadow-xl bg-gray-100 justify-center gap-4 px-4 py-2 text-center ${className || ""}`}
+      className={`relative flex items-center w-full shadow-xl bg-gray-100 justify-center gap-4 px-4 py-2 text-center ${
+        className || ""
+      }`}
       {...props}
     >
       {zones.map((zone) => (
         <div
           key={zone.id}
-          className={`relative flex h-32 w-16 flex-col items-center justify-center transition-all before:absolute before:inset-0 z-10 before:rounded-[40px_40px_20px_20px] ${selectedZone == zone.id
-            ? " before:bg-[#2cc40d]"
-            : "before:bg-gray-300"
-            }`}
+          className={`relative flex h-32 w-16 flex-col items-center justify-center transition-all before:absolute before:inset-0 z-10 before:rounded-[40px_40px_20px_20px] ${
+            selectedZone == zone.id
+              ? " before:bg-[#2cc40d]"
+              : "before:bg-gray-300"
+          }`}
         >
           <div className="flex flex-col relative items-center rotate-[-90deg]">
             <span
-              className={`text-lg font-bold whitespace-nowrap ${selectedZone == zone.id ? "text-white" : "text-black"
-                }`}
+              className={`text-lg font-bold whitespace-nowrap ${
+                selectedZone == zone.id ? "text-white" : "text-black"
+              }`}
             >
               {zone.label}
             </span>
-
           </div>
         </div>
       ))}
