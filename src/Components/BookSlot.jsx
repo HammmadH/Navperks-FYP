@@ -3,6 +3,10 @@ import Swal from "sweetalert2";
 import Car from "../assets/car1.png";
 import vertical from "../assets/car.png";
 import { FaLongArrowAltUp } from "react-icons/fa";
+import car1 from "../assets/SEDAN.jpeg";
+import car2 from "../assets/SUV2.jpeg";
+import car3 from "../assets/HATCHBACK.jpeg";
+import car4 from "../assets/PICKUP.jpeg";
 
 export const carNames = [
   { name: "Honda Civic", type: "Sedan" },
@@ -99,34 +103,42 @@ export default function BookSlot({
 
     const { value: fruit } = Swal.fire({
       title: `Reserve Slot ${slot.code}?`,
-      input: "select",
-      inputOptions: mycarnames,
+      html: `
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 10px;">
+            <div class="car-option" data-value="sedan" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+              <img src=${car1} style="width: 100%; height: 90px;" />
+              <div style="margin-top: 8px; font-weight: 500;">Sedan</div>
+            </div>
+            <div class="car-option" data-value="suv" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+              <img src=${car2} style="width: 100%; height: 90px;" />
+              <div style="margin-top: 8px; font-weight: 500;">Suv</div>
+            </div>
+            <div class="car-option" data-value="hatchback" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+              <img src=${car3} style="width: 100%; height: 90px;" />
+              <div style="margin-top: 8px; font-weight: 500;">Hatchback</div>
+            </div>
+            <div class="car-option" data-value="pickup" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+              <img src=${car4} style="width: 100%; height: 90px;" />
+              <div style="margin-top: 8px; font-weight: 500;">Pickup</div>
+            </div>
+          </div>
+        `,
       inputPlaceholder: "Select your cartype",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, Reserve it!",
-      inputValidator: (value) => {
-        return new Promise((resolve) => {
-          if (!value) {
-            resolve("Select a car type please");
-          } else {
-            confirmReservation(slot, carNames[value].type);
-            resolve()
-          }
-        });
+      didOpen: () => {
+        const options = Swal.getHtmlContainer().querySelectorAll(".car-option");
+        options.forEach((option) =>
+          option.addEventListener("click", () => {
+            const selectedType = option.getAttribute("data-value");
+            Swal.close();
+            confirmReservation(slot, selectedType);
+          })
+        );
       },
     });
-    // Swal.fire({
-    //   title: `Reserve Slot ${slot.code}?`,
-    //   text: "Do you want to confirm your reservation?",
-    //   icon: "question",
-    //   showCancelButton: true,
-    // }).then((result) => {
-    //   if (result.isConfirmed) {
-    //     confirmReservation(slot);
-    //   }
-    // });
   };
 
   const confirmReservation = (slot, carType) => {
