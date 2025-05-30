@@ -119,32 +119,34 @@ function App() {
   }, []);
 
   const getUserConsent = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/User`, {
-        method: "POST",
-        headers: {
-          "CONTENT-TYPE": "application/json",
-        },
-        body: JSON.stringify({
-          consent: true,
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("userAgreement", data.userId);
-        toast.success("Thanks for coming.", {
-          position: "top-right",
-        });
-      } else {
-        toast.error("Server Error. please wait", {
-          position: "top-right",
-        });
-      }
-    } catch (err) {
-      toast.error("Server Error. please wait", {
-        position: "top-right",
-      });
-    }
+    // try {
+    //   const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/User`, {
+    //     method: "POST",
+    //     headers: {
+    //       "CONTENT-TYPE": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       consent: true,
+    //     }),
+    //   });
+    //   if (response.ok) {
+    //     const data = await response.json();
+    //     localStorage.setItem("userAgreement", data.userId);
+    //     toast.success("Thanks for coming.", {
+    //       position: "top-right",
+    //     });
+    //   } else {
+    //     toast.error("Server Error. please wait", {
+    //       position: "top-right",
+    //     });
+    //   }
+    // } catch (err) {
+    //   toast.error("Server Error. please wait", {
+    //     position: "top-right",
+    //   });
+    // }
+
+     localStorage.setItem("userAgreement", "85 ");
   };
 
   const fetchannouncements = async () => {

@@ -3,6 +3,7 @@ import Car from "../assets/car.png";
 import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import RadialSeparators from "./RadialSeparators";
+import LiveSpeedometer from "./LiveSpeedometer";
 
 const zones = [
   { id: 'S', label: "COCIS" },
@@ -31,7 +32,7 @@ const NavigateSlot = ({
 
       <div className="flex justify-center flex-col my-4 items-center">
         <div className="flex justify-center items-center rounded-full w-60 h-full">
-                <div className="absolute top-44 right-10 px-6 py-3 text-3xl bg-slate-300 dark:bg-slate-900 dark:text-white rounded-full">{speed} km/h</div>
+                <div className="absolute top-44 right-10 px-6 py-3 text-3xl bg-slate-300 dark:bg-slate-900 dark:text-white rounded-full"><LiveSpeedometer /> km/h</div>
         
                   <CircularProgressbarWithChildren
             value={progressValue}
