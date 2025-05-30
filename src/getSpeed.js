@@ -89,3 +89,52 @@ export const sendSpeed = async (speed, reservationId) => {
     return null;
   }
 };
+
+
+export const getAverageSpeed = (durationInSeconds = 10, intervalMs = 1000) => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject("Geolocation not supported.");
+      return;
+    }
+
+    const speedReadings = [];
+    let elapsed = 0;
+
+    const intervalId = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const speedMps = position.coords.speed;
+
+          if (speedMps !== null) {
+            const speedKmph = speedMps * 3.6;
+            speedReadings.push(speedKmph);
+          }
+        },
+        (err) => {
+          clearInterval(intervalId);
+          reject("Error getting location: " + err.message);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 5000,
+        }
+      );
+
+      elapsed += intervalMs;
+      if (elapsed >= durationInSeconds * 1000) {
+        clearInterval(intervalId);
+
+        if (speedReadings.length === 0) {
+          reject("No valid speed readings available.");
+          return;
+        }
+
+        const sum = speedReadings.reduce((acc, val) => acc + val, 0);
+        const average = (sum / speedReadings.length).toFixed(2);
+        resolve(average); // returns string like "23.78"
+      }
+    }, intervalMs);
+  });
+};

@@ -34,11 +34,11 @@ const LiveSpeedometer = () => {
 
   return (
     <div>
-      <h3>Live Speedometer</h3>
+      {/* <h3>Live Speedometer</h3> */}
       {error ? (
         <p style={{ color: "red" }}>{error}</p>
       ) : (
-        <p>{speed !== null ? `${speed} km/h` : "Fetching speed..."}</p>
+        <p>{speed !== null ? `${speed} km/h` : ""}</p>
       )}
     </div>
   );

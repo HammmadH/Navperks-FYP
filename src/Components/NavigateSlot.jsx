@@ -32,7 +32,7 @@ const NavigateSlot = ({
 
       <div className="flex justify-center flex-col my-4 items-center">
         <div className="flex justify-center items-center rounded-full w-60 h-full">
-                <div className="absolute top-44 right-10 px-6 py-3 text-3xl bg-slate-300 dark:bg-slate-900 dark:text-white rounded-full"><LiveSpeedometer /> km/h</div>
+                <div className="absolute top-44 right-10 px-6 py-3 text-3xl bg-slate-300 dark:bg-slate-500 dark:text-white rounded-full"><LiveSpeedometer /></div>
         
                   <CircularProgressbarWithChildren
             value={progressValue}
