@@ -10,10 +10,10 @@ import Swal from "sweetalert2";
 import { useEffect } from "react";
 import { method } from "lodash";
 import { carNames } from "../BookSlot";
-import car1 from "../../assets/SEDAN.jpeg"
-import car2 from "../../assets/SUV2.jpeg"
-import car3 from "../../assets/HATCHBACK.jpeg"
-import car4 from "../../assets/PICKUP.jpeg"
+import car1 from "../../assets/SEDAN.jpeg";
+import car2 from "../../assets/SUV2.jpeg";
+import car3 from "../../assets/HATCHBACK.jpeg";
+import car4 from "../../assets/PICKUP.jpeg";
 
 const initialSlots = [
   {
@@ -174,19 +174,17 @@ const AdminDashboard = () => {
     fetchannouncements();
   }, []);
 
-  useEffect(()=>{
-     getAllSlots();
-    
-    
-  },[])
+  useEffect(() => {
+    getAllSlots();
+  }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     calculateRushedData();
-  },[])
+  }, []);
 
-  useEffect(()=>{
-getAnalytics();
-  },[])
+  useEffect(() => {
+    getAnalytics();
+  }, []);
 
   const loginAsAdmin = async (data) => {
     try {
@@ -353,7 +351,7 @@ getAnalytics();
   };
 
   const bookSlot = async (slot, carNumber, carType) => {
-    console.log("book slot",carType)
+    console.log("book slot", carType);
     let userId = null;
     try {
       const response = await fetch(
@@ -393,7 +391,7 @@ getAnalytics();
               userId: 0,
               userAId: userId,
               slotCode: slot.code,
-              carType
+              carType,
             }),
           }
         );
@@ -456,11 +454,11 @@ getAnalytics();
   const handleSlotClick = (slot) => {
     // console.log(/slot)
 
-     let mycarnames = {};
-      carNames.forEach((c, index) => {
-        mycarnames[index] = c.name + " " + "(" + c.type + ")";
-      });
-// let val1;
+    let mycarnames = {};
+    carNames.forEach((c, index) => {
+      mycarnames[index] = c.name + " " + "(" + c.type + ")";
+    });
+    // let val1;
     if (slot.reserved) {
       Swal.fire({
         title: "Empty Slot",
@@ -487,85 +485,82 @@ getAnalytics();
       let value1;
       let userRegistered = false;
 
-     
+      Swal.fire({
+        title: "Book Slot",
+        text: "Enter your car number to book this slot:",
+        input: "text",
+        inputPlaceholder: "Enter car number",
+        showCancelButton: true,
+        confirmButtonText: "Book Slot",
+        didOpen: () => {
+          const input = Swal.getInput();
+          input.setAttribute("autocomplete", "off");
+          input.setAttribute("maxlength", "8");
+          input.setAttribute("minLength", "6") // Prevent typing after 8 characters
 
+          input.addEventListener("input", () => {
+            if (input.value.length > 8) {
+              input.value = input.value.slice(0, 8);
+            }
+          });
+        },
+        preConfirm: (carNumber) => {
+          if (!carNumber) {
+            Swal.showValidationMessage("Car number is required!");
+          } else if (carNumber.length > 8) {
+            Swal.showValidationMessage("Maximum 8 characters are allowed");
+          }
+          else if (carNumber.length < 6) {
+            Swal.showValidationMessage("Minimum 6 characters are allowed");
+          }
+          return carNumber;
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const carNumberValue = result.value;
+          userRegistered = true;
 
-
-    // Now show the image-based selection
-  
-    Swal.fire({
-  title: "Book Slot",
-  text: "Enter your car number to book this slot:",
-  input: "text",
-  inputPlaceholder: "Enter car number",
-  showCancelButton: true,
-  confirmButtonText: "Book Slot",
-  didOpen: () => {
-    const input = Swal.getInput();
-    input.setAttribute("autocomplete", "off");
-    input.setAttribute("maxlength", "8"); // Prevent typing after 8 characters
-
-    input.addEventListener("input", () => {
-      if (input.value.length > 8) {
-        input.value = input.value.slice(0, 8);
-      }
-    });
-  },
-  preConfirm: (carNumber) => {
-    if (!carNumber) {
-      Swal.showValidationMessage("Car number is required!");
-    } else if (carNumber.length > 8) {
-      Swal.showValidationMessage("Maximum 8 characters are allowed");
-    }
-    return carNumber;
-  },
-}).then((result) => {
-  if (result.isConfirmed) {
-    const carNumberValue = result.value;
-    userRegistered = true;
-
-    // Now show the image-based selection
-   Swal.fire({
-  title: `Reserve Slot ${slot.code}?`,
-  html: `
+          // Now show the image-based selection
+          Swal.fire({
+            title: `Reserve Slot ${slot.code}?`,
+            html: `
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 10px;">
       <div class="car-option" data-value="sedan" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
-        <img src=${car1} style="width: 80px;" />
+        <img src=${car1} style="width: 100%; height: 90px;" />
         <div style="margin-top: 8px; font-weight: 500;">Sedan</div>
       </div>
       <div class="car-option" data-value="suv" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
-        <img src=${car2} style="width: 80px;" />
+        <img src=${car2} style="width: 100%; height: 90px;" />
         <div style="margin-top: 8px; font-weight: 500;">Suv</div>
       </div>
       <div class="car-option" data-value="hatchback" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
-        <img src=${car3} style="width: 80px;" />
+        <img src=${car3} style="width: 100%; height: 90px;" />
         <div style="margin-top: 8px; font-weight: 500;">Hatchback</div>
       </div>
       <div class="car-option" data-value="pickup" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
-        <img src=${car4} style="width: 80px;" />
+        <img src=${car4} style="width: 100%; height: 90px;" />
         <div style="margin-top: 8px; font-weight: 500;">Pickup</div>
       </div>
     </div>
   `,
-  showConfirmButton: false,
-  showCancelButton: true,
-  didOpen: () => {
-    const options = Swal.getHtmlContainer().querySelectorAll(".car-option");
-    options.forEach((option) =>
-      option.addEventListener("click", () => {
-        const selectedType = option.getAttribute("data-value");
-        Swal.close();
-        bookSlot(slot, carNumberValue, selectedType);
-      })
-    );
-  },
-});
-
-  }
-});
+            showConfirmButton: false,
+            showCancelButton: true,
+            didOpen: () => {
+              const options =
+                Swal.getHtmlContainer().querySelectorAll(".car-option");
+              options.forEach((option) =>
+                option.addEventListener("click", () => {
+                  const selectedType = option.getAttribute("data-value");
+                  Swal.close();
+                  bookSlot(slot, carNumberValue, selectedType);
+                })
+              );
+            },
+          });
+        }
+      });
 
       if (userRegistered) {
-        
       }
     }
   };
