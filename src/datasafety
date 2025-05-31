@@ -1,0 +1,31 @@
+// Keep this consistent and private
+const secretKey = import.meta.env.SECRET_KEY || "keyyyyyy";
+
+export function simpleEncrypt(data) {
+    console.log(data)
+  const text = String(data); // Convert boolean or other types to string
+  let result = "";
+  for (let i = 0; i < text.length; i++) {
+    const charCode =
+      text.charCodeAt(i) ^ secretKey.charCodeAt(i % secretKey.length);
+    result += String.fromCharCode(charCode);
+  }
+  return btoa(result); // base64 encode for safe storage
+}
+
+export function simpleDecrypt(encryptedText) {
+  if (!encryptedText) return null;
+
+  const decoded = atob(encryptedText); // base64 decode
+  let result = "";
+  for (let i = 0; i < decoded.length; i++) {
+    const charCode =
+      decoded.charCodeAt(i) ^ secretKey.charCodeAt(i % secretKey.length);
+    result += String.fromCharCode(charCode);
+  }
+
+  // Return proper data type
+  if (result === "true") return true;
+  if (result === "false") return false;
+  return result;
+}

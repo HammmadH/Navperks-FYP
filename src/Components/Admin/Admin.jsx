@@ -14,6 +14,8 @@ import car1 from "../../assets/SEDAN.jpeg";
 import car2 from "../../assets/SUV2.jpeg";
 import car3 from "../../assets/HATCHBACK.jpeg";
 import car4 from "../../assets/PICKUP.jpeg";
+import { simpleDecrypt } from "../../datasafety";
+import { simpleEncrypt } from "../../datasafety";
 
 const initialSlots = [
   {
@@ -49,7 +51,7 @@ const initialResponse = [
 
 const AdminDashboard = () => {
   const [adminData, setAdminData] = useState(
-    localStorage.getItem("admin") || null
+    simpleDecrypt(localStorage.getItem(simpleEncrypt("admin"))) || null
   );
 
   const [selectedComponent, setSelectedComponent] = useState("home");
@@ -74,7 +76,7 @@ const AdminDashboard = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    if (!(adminData == null)) localStorage.setItem("admin", adminData);
+    if (!(adminData == null)) localStorage.setItem(simpleEncrypt("admin"), simpleEncrypt(adminData));
   }, [adminData]);
 
   const fetchannouncements = async () => {
@@ -187,6 +189,7 @@ const AdminDashboard = () => {
   }, []);
 
   const loginAsAdmin = async (data) => {
+    0
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/Admin/api/admin/login`,
@@ -196,7 +199,10 @@ const AdminDashboard = () => {
             "Content-Type": "application/json",
             Accept: "*/*",
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify({
+            username: data.username,
+            password: simpleEncrypt(data.password)
+          }),
         }
       );
 
@@ -577,7 +583,7 @@ const AdminDashboard = () => {
           },
           body: JSON.stringify({
             username: adminData,
-            newPassword: data,
+            newPassword: simpleEncrypt(data),
           }),
         }
       );
