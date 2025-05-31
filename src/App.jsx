@@ -16,6 +16,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getAverageSpeed, getDeviceSpeed, sendSpeed } from "./getSpeed";
 import GPSAccessPrompt from "./Components/GPSAccessPrompt";
+import { simpleDecrypt } from "./datasafety";
+import { simpleEncrypt } from "./datasafety";
 
 const initialResponse = [
   {
@@ -51,6 +53,10 @@ const initialSlots = [
 
 function App() {
   const [step, setStep] = useState(1);
+  const [t1,s2] = useState(()=>{
+    console.log(simpleEncrypt("bookedSlot123"))
+    return null
+  })
   const [selectedComponent, setSelectedComponent] = useState("home");
   const [slots, setMySlots] = useState(initialSlots);
   const [announcements, setAnnouncements] = useState(initialResponse);
@@ -59,28 +65,28 @@ function App() {
   const [lastScrollY, setLastScrollY] = useState(0);
 
   const [bookedSlot, setBookedSlot] = useState(
-    localStorage.getItem("bookedSlot")
+    simpleDecrypt(localStorage.getItem(simpleEncrypt("bookedSlot"))) || null
   );
 
   const [isParked, setIsParked] = useState(() => {
-    const isParkedValue = localStorage.getItem("isParked");
-    const bookedSlotValue = localStorage.getItem("bookedSlot");
+    const isParkedValue =  simpleDecrypt(localStorage.getItem(simpleEncrypt("isParked")));
+    const bookedSlotValue =  simpleDecrypt(localStorage.getItem(simpleEncrypt("bookedSlot")));
 
     // Check if both values exist and are valid, otherwise set default to false
     return isParkedValue && bookedSlotValue ? JSON.parse(isParkedValue) : false;
   });
 
   const [carType, setCarType] = useState(() => {
-    const isParkedValue = localStorage.getItem("isParked");
-    const bookedSlotValue = localStorage.getItem("bookedSlot");
+    const isParkedValue =  simpleDecrypt(localStorage.getItem(simpleEncrypt("isParked")));
+    const bookedSlotValue =  simpleDecrypt(localStorage.getItem(simpleDecrypt("bookedSlot")));
 
-    const cartypeValue = localStorage.getItem("carType");
+    const cartypeValue =  simpleDecrypt(localStorage.getItem(simpleEncrypt("carType")));
 
     return isParkedValue &&
       bookedSlotValue &&
       cartypeValue &&
       cartypeValue.length > 0
-      ? JSON.parse(cartypeValue)
+      ? cartypeValue
       : "";
   });
   const [remainingTime, setRemainingTime] = useState(0); // Timer state
@@ -131,7 +137,7 @@ function App() {
       });
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem("userAgreement", data.userId);
+        localStorage.setItem(simpleEncrypt("userAgreement"), simpleEncrypt(data.userId));
         toast.success("Thanks for coming.", {
           position: "top-right",
         });
@@ -219,15 +225,15 @@ function App() {
 
   useEffect(() => {
     if (bookedSlot == null) localStorage.removeItem("bookedSlot");
-    else localStorage.setItem("bookedSlot", bookedSlot);
+    else localStorage.setItem(simpleEncrypt("bookedSlot"), simpleEncrypt(bookedSlot));
   }, [bookedSlot]);
 
   useEffect(() => {
-    localStorage.setItem("isParked", isParked);
+    localStorage.setItem(simpleEncrypt("isParked"), simpleEncrypt(isParked));
   }, [isParked]);
 
   useEffect(() => {
-    localStorage.setItem("carType", carType);
+    localStorage.setItem(simpleEncrypt("carType"), simpleEncrypt(carType));
   }, [carType]);
 
   useEffect(() => {
@@ -247,7 +253,7 @@ function App() {
   }, [timerRunning, remainingTime, setBookedSlot, setIsParked]);
 
   useEffect(() => {
-    const userAgreed = localStorage.getItem("userAgreement"); // Check if user has agreed
+    const userAgreed = simpleDecrypt(localStorage.getItem(simpleEncrypt("userAgreement"))); // Check if user has agreed
 
     if (userAgreed) {
       setStep(3); // Directly show MainComponent if user agreed
@@ -283,7 +289,7 @@ function App() {
   const bookSlot = async (slotCode, carType) => {
     setIsParked(false);
     try {
-      const uID = JSON.parse(localStorage.getItem("userAgreement"));
+      const uID = JSON.parse(simpleDecrypt(localStorage.getItem(simpleEncrypt("userAgreement"))));
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/Reservation`,
         {
@@ -300,8 +306,8 @@ function App() {
       );
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem("reservationId", data.reservationId);
-        localStorage.setItem("carType", carType)
+        localStorage.setItem(simpleEncrypt("reservationId"), simpleEncrypt(data.reservationId));
+        localStorage.setItem(simpleEncrypt("carType"), simpleEncrypt(carType))
         toast.success(`${data.message}`, {
           position: "top-right",
         });
@@ -328,15 +334,15 @@ function App() {
   };
 
   const startTimer = () => {
-    setRemainingTime(totalTime);
+    setRemainingTime(20);
     setTimerRunning(true);
   };
 
 
   const releaseSlot = async () => {
     try {
-      const reservationid = JSON.parse(localStorage.getItem("reservationId"));
-      const cartypee = JSON.parse(localStorage.getItem("carType"));
+      const reservationid = JSON.parse(simpleDecrypt(localStorage.getItem(simpleEncrypt("reservationId"))));
+      const cartypee = simpleDecrypt(localStorage.getItem(simpleEncrypt("carType")));
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/Reservation/${reservationid}`,
         {
