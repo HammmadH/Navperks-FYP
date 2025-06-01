@@ -421,7 +421,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const emptySlot = async (reservationid) => {
+  const emptySlot = async (reservationid, slot) => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/Reservation/${reservationid}`,
@@ -433,8 +433,7 @@ const AdminDashboard = () => {
           body: JSON.stringify({
             userId: 0,
             userAId: 0,
-            slotCode: "string",
-            carType: "string",
+            slotCode: slot.code,
           }),
         }
       );
