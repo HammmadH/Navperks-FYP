@@ -201,7 +201,7 @@ const AdminDashboard = () => {
           },
           body: JSON.stringify({
             username: data.username,
-            password: simpleEncrypt(data.password)
+            password: simpleEncrypt(data.password),
           }),
         }
       );
@@ -422,6 +422,7 @@ const AdminDashboard = () => {
   };
 
   const emptySlot = async (reservationid, slot) => {
+    // alert(slot.code)
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/Reservation/${reservationid}`,
@@ -483,7 +484,7 @@ const AdminDashboard = () => {
         if (result.isConfirmed) {
           // val1 = result.value
 
-          emptySlot(result.value);
+          emptySlot(result.value, slot);
         }
       });
     } else {

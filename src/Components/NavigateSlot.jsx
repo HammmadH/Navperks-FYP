@@ -32,7 +32,7 @@ const NavigateSlot = ({
 
       <div className="flex justify-center flex-col my-4 items-center">
         <div className="flex justify-center items-center rounded-full w-60 h-full">
-                <div className="absolute top-44 right-10 px-6 py-3 text-3xl bg-slate-300 dark:bg-slate-500 dark:text-white rounded-full"><LiveSpeedometer /></div>
+                <div className="absolute top-44 right-6 px-6 py-3 text-lg dark:text-white rounded-full"><LiveSpeedometer /></div>
         
                   <CircularProgressbarWithChildren
             value={progressValue}
@@ -133,7 +133,7 @@ const Button = ({
         <button
           className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer"
           onClick={() => {
-            releaseSlot();
+            releaseSlot(bookedSlot);
           }}
         >
           FREE SLOT

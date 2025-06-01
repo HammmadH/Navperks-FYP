@@ -2,7 +2,6 @@
 const secretKey = import.meta.env.SECRET_KEY || "keyyyyyy";
 
 export function simpleEncrypt(data) {
-    console.log(data)
   const text = String(data); // Convert boolean or other types to string
   let result = "";
   for (let i = 0; i < text.length; i++) {

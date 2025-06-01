@@ -18,18 +18,6 @@ createRoot(document.getElementById("root")).render(
             <Admin />
           }
         />
-        <Route
-          path="table"
-          element={
-            <ReportTable />
-          }
-        />
-        <Route
-          path="map"
-          element={
-            <IndoorMap />
-          }
-        />
 
       </Routes>
     </BrowserRouter>

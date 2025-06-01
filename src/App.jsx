@@ -53,10 +53,6 @@ const initialSlots = [
 
 function App() {
   const [step, setStep] = useState(1);
-  const [t1,s2] = useState(()=>{
-    console.log(simpleEncrypt("bookedSlot123"))
-    return null
-  })
   const [selectedComponent, setSelectedComponent] = useState("home");
   const [slots, setMySlots] = useState(initialSlots);
   const [announcements, setAnnouncements] = useState(initialResponse);
@@ -69,18 +65,28 @@ function App() {
   );
 
   const [isParked, setIsParked] = useState(() => {
-    const isParkedValue =  simpleDecrypt(localStorage.getItem(simpleEncrypt("isParked")));
-    const bookedSlotValue =  simpleDecrypt(localStorage.getItem(simpleEncrypt("bookedSlot")));
+    const isParkedValue = simpleDecrypt(
+      localStorage.getItem(simpleEncrypt("isParked"))
+    );
+    const bookedSlotValue = simpleDecrypt(
+      localStorage.getItem(simpleEncrypt("bookedSlot"))
+    );
 
     // Check if both values exist and are valid, otherwise set default to false
-    return isParkedValue && bookedSlotValue ? JSON.parse(isParkedValue) : false;
+    return bookedSlotValue ? true : false;
   });
 
   const [carType, setCarType] = useState(() => {
-    const isParkedValue =  simpleDecrypt(localStorage.getItem(simpleEncrypt("isParked")));
-    const bookedSlotValue =  simpleDecrypt(localStorage.getItem(simpleDecrypt("bookedSlot")));
+    const isParkedValue = simpleDecrypt(
+      localStorage.getItem(simpleEncrypt("isParked"))
+    );
+    const bookedSlotValue = simpleDecrypt(
+      localStorage.getItem(simpleDecrypt("bookedSlot"))
+    );
 
-    const cartypeValue =  simpleDecrypt(localStorage.getItem(simpleEncrypt("carType")));
+    const cartypeValue = simpleDecrypt(
+      localStorage.getItem(simpleEncrypt("carType"))
+    );
 
     return isParkedValue &&
       bookedSlotValue &&
@@ -137,7 +143,10 @@ function App() {
       });
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem(simpleEncrypt("userAgreement"), simpleEncrypt(data.userId));
+        localStorage.setItem(
+          simpleEncrypt("userAgreement"),
+          simpleEncrypt(data.userId)
+        );
         toast.success("Thanks for coming.", {
           position: "top-right",
         });
@@ -211,8 +220,28 @@ function App() {
 
         return acc;
       }, []);
-
       setMySlots(groupedSlots);
+      if (bookedSlot) {
+
+        const myslotArray = groupedSlots.filter((s) => {
+          return (
+            s.floor.toLowerCase() === bookedSlot.split("-")[0].toLowerCase()
+          );
+
+          return false;
+        });
+
+        const mySlot = myslotArray[0]?.slots.find((s) => {
+          return s.code.toLowerCase() === bookedSlot.toLowerCase()
+        });
+
+        if(mySlot && mySlot.reserved == false){
+          setIsParked(false)
+          setBookedSlot(null)
+      
+        }
+      }
+
     } else {
       setMySlots(initialSlots);
     }
@@ -225,7 +254,11 @@ function App() {
 
   useEffect(() => {
     if (bookedSlot == null) localStorage.removeItem("bookedSlot");
-    else localStorage.setItem(simpleEncrypt("bookedSlot"), simpleEncrypt(bookedSlot));
+    else
+      localStorage.setItem(
+        simpleEncrypt("bookedSlot"),
+        simpleEncrypt(bookedSlot)
+      );
   }, [bookedSlot]);
 
   useEffect(() => {
@@ -253,7 +286,9 @@ function App() {
   }, [timerRunning, remainingTime, setBookedSlot, setIsParked]);
 
   useEffect(() => {
-    const userAgreed = simpleDecrypt(localStorage.getItem(simpleEncrypt("userAgreement"))); // Check if user has agreed
+    const userAgreed = simpleDecrypt(
+      localStorage.getItem(simpleEncrypt("userAgreement"))
+    ); // Check if user has agreed
 
     if (userAgreed) {
       setStep(3); // Directly show MainComponent if user agreed
@@ -289,7 +324,9 @@ function App() {
   const bookSlot = async (slotCode, carType) => {
     setIsParked(false);
     try {
-      const uID = JSON.parse(simpleDecrypt(localStorage.getItem(simpleEncrypt("userAgreement"))));
+      const uID = JSON.parse(
+        simpleDecrypt(localStorage.getItem(simpleEncrypt("userAgreement")))
+      );
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/Reservation`,
         {
@@ -306,8 +343,11 @@ function App() {
       );
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem(simpleEncrypt("reservationId"), simpleEncrypt(data.reservationId));
-        localStorage.setItem(simpleEncrypt("carType"), simpleEncrypt(carType))
+        localStorage.setItem(
+          simpleEncrypt("reservationId"),
+          simpleEncrypt(data.reservationId)
+        );
+        localStorage.setItem(simpleEncrypt("carType"), simpleEncrypt(carType));
         toast.success(`${data.message}`, {
           position: "top-right",
         });
@@ -317,6 +357,7 @@ function App() {
         setTimeout(() => {
           setIsParked(true);
         }, 10 * 1000);
+        alert("ok")
         const speed1 = await getAverageSpeed(3);
         setSpeed(speed1);
         const sResponse = await sendSpeed(speed1, data.reservationId);
@@ -326,7 +367,8 @@ function App() {
           position: "top-right",
         });
       }
-    } catch {
+    } catch(error) {
+      alert(error)
       toast.error("Server Error. please wait", {
         position: "top-right",
       });
@@ -338,11 +380,15 @@ function App() {
     setTimerRunning(true);
   };
 
-
   const releaseSlot = async (slotCode) => {
+
     try {
-      const reservationid = JSON.parse(simpleDecrypt(localStorage.getItem(simpleEncrypt("reservationId"))));
-      const cartypee = simpleDecrypt(localStorage.getItem(simpleEncrypt("carType")));
+      const reservationid = JSON.parse(
+        simpleDecrypt(localStorage.getItem(simpleEncrypt("reservationId")))
+      );
+      const cartypee = simpleDecrypt(
+        localStorage.getItem(simpleEncrypt("carType"))
+      );
 
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/Reservation/${reservationid}`,
@@ -359,7 +405,7 @@ function App() {
         }
       );
       if (response.ok) {
-        startTimer()
+        startTimer();
         toast.success("Slot Released", {
           position: "top-right",
         });
