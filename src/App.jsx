@@ -361,7 +361,7 @@ function App() {
         const speed1 = await getAverageSpeed(3);
         setSpeed(speed1);
         const sResponse = await sendSpeed(speed1, data.reservationId);
-        clg(sResponse);
+        console.log(sResponse);
       } else if (response.status === 409) {
         toast.error("You have already booked a slot", {
           position: "top-right",
