@@ -104,13 +104,10 @@ export const getAverageSpeed = (durationInSeconds = 10) => {
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
         const speedMps = position.coords.speed;
+        const now = Date.now();
 
-        if (speedMps !== null) {
-          const speedKmph = speedMps * 3.6;
-          speedReadings.push(speedKmph);
-        }
-
-        if (Date.now() - startTime >= durationInSeconds * 1000) {
+        // Stop the watch after duration is reached
+        if (now - startTime >= durationInSeconds * 1000) {
           navigator.geolocation.clearWatch(watchId);
 
           if (speedReadings.length === 0) {
@@ -121,6 +118,16 @@ export const getAverageSpeed = (durationInSeconds = 10) => {
           const sum = speedReadings.reduce((acc, val) => acc + val, 0);
           const average = (sum / speedReadings.length).toFixed(2);
           resolve(average);
+          return;
+        }
+
+        // Only store valid speed values
+        if (speedMps !== null && !isNaN(speedMps)) {
+          const speedKmph = speedMps * 3.6;
+          speedReadings.push(speedKmph);
+          console.log(`Speed Reading: ${speedKmph.toFixed(2)} km/h`);
+        } else {
+          console.warn("Invalid speed reading (null or NaN).");
         }
       },
       (err) => {
@@ -130,7 +137,7 @@ export const getAverageSpeed = (durationInSeconds = 10) => {
       {
         enableHighAccuracy: true,
         maximumAge: 0,
-        timeout: 5000,
+        timeout: 10000,
       }
     );
   });
