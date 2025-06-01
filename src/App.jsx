@@ -339,10 +339,11 @@ function App() {
   };
 
 
-  const releaseSlot = async () => {
+  const releaseSlot = async (slotCode) => {
     try {
       const reservationid = JSON.parse(simpleDecrypt(localStorage.getItem(simpleEncrypt("reservationId"))));
       const cartypee = simpleDecrypt(localStorage.getItem(simpleEncrypt("carType")));
+
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/Reservation/${reservationid}`,
         {
