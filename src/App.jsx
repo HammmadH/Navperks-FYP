@@ -353,8 +353,7 @@ function App() {
           body: JSON.stringify({
             userId: 0,
             userAId: 0,
-            slotCode: "string",
-            carType: cartypee
+            slotCode: slotCode
           }),
         }
       );
