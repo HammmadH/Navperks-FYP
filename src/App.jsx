@@ -359,6 +359,7 @@ function App() {
           setIsParked(true);
         }, 10 * 1000);
         const speed1 = await getAverageSpeed(3);
+        alert(speed1)
         setSpeed(speed1);
         const sResponse = await sendSpeed(speed1, data.reservationId);
         console.log(sResponse);
