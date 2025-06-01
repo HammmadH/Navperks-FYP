@@ -162,7 +162,7 @@ function App() {
       });
     }
 
-    //  localStorage.setItem("userAgreement", "85 ");
+    
   };
 
   const fetchannouncements = async () => {
@@ -359,17 +359,15 @@ function App() {
           setIsParked(true);
         }, 10 * 1000);
         const speed1 = await getAverageSpeed(3);
-        alert(speed1)
+     
         setSpeed(speed1);
         const sResponse = await sendSpeed(speed1, data.reservationId);
-        console.log(sResponse);
       } else if (response.status === 409) {
         toast.error("You have already booked a slot", {
           position: "top-right",
         });
       }
     } catch(error) {
-      alert(error)
       toast.error("Server Error. please wait", {
         position: "top-right",
       });

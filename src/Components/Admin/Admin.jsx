@@ -214,13 +214,11 @@ const AdminDashboard = () => {
         });
       } else {
         const error = await response.text();
-        console.log(error);
         toast.error(`Login Failed: ${error || "Unknown Error"}`, {
           position: "top-right",
         });
       }
     } catch (error) {
-      console.error("Error:", error);
       toast.error("An error occurred while logging in.", {
         position: "top-right",
       });
@@ -263,7 +261,6 @@ const AdminDashboard = () => {
         });
       }
     } catch (error) {
-      console.error("Error:", error);
       Swal.fire({
         icon: "error",
         title: "Network Error",
@@ -305,7 +302,6 @@ const AdminDashboard = () => {
         });
       }
     } catch (error) {
-      console.error("Error:", error);
       Swal.fire({
         icon: "error",
         title: "Network Error",
@@ -346,7 +342,6 @@ const AdminDashboard = () => {
         });
       }
     } catch (error) {
-      console.error("Error:", error);
       Swal.fire({
         icon: "error",
         title: "Network Error",
@@ -357,7 +352,6 @@ const AdminDashboard = () => {
   };
 
   const bookSlot = async (slot, carNumber, carType) => {
-    console.log("book slot", carType);
     let userId = null;
     try {
       const response = await fetch(
@@ -402,7 +396,6 @@ const AdminDashboard = () => {
           }
         );
         if (reserveSlot.ok) {
-          console.log(reserveSlot);
           toast.success("Slot Reserved Successfully", {
             position: "top-right",
           });
@@ -414,7 +407,6 @@ const AdminDashboard = () => {
         }
       }
     } catch (err) {
-      console.error("Error:", err);
       toast.error("An error occurred", {
         position: "top-right",
       });
@@ -422,7 +414,6 @@ const AdminDashboard = () => {
   };
 
   const emptySlot = async (reservationid, slot) => {
-    // alert(slot.code)
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/Reservation/${reservationid}`,
@@ -440,7 +431,6 @@ const AdminDashboard = () => {
       );
       if (response.ok) {
         const message = await response.json();
-        // alert(message.message)
         toast.success(`${message.message}`, {
           position: "top-right",
         });
@@ -458,13 +448,11 @@ const AdminDashboard = () => {
     }
   };
   const handleSlotClick = (slot) => {
-    // console.log(/slot)
 
     let mycarnames = {};
     carNames.forEach((c, index) => {
       mycarnames[index] = c.name + " " + "(" + c.type + ")";
     });
-    // let val1;
     if (slot.reserved) {
       Swal.fire({
         title: "Empty Slot",
@@ -482,7 +470,6 @@ const AdminDashboard = () => {
         },
       }).then((result) => {
         if (result.isConfirmed) {
-          // val1 = result.value
 
           emptySlot(result.value, slot);
         }
@@ -605,7 +592,6 @@ const AdminDashboard = () => {
         });
       }
     } catch (error) {
-      console.error("Error:", error);
       Swal.fire({
         icon: "error",
         title: "Network Error",
