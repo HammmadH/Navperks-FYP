@@ -91,7 +91,7 @@ export const sendSpeed = async (speed, reservationId) => {
 };
 
 
-export const getAverageSpeed = (durationInSeconds = 10, intervalMs = 1000) => {
+export const getAverageSpeed = (durationInSeconds = 10) => {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       reject("Geolocation not supported.");
@@ -99,42 +99,39 @@ export const getAverageSpeed = (durationInSeconds = 10, intervalMs = 1000) => {
     }
 
     const speedReadings = [];
-    let elapsed = 0;
+    const startTime = Date.now();
 
-    const intervalId = setInterval(() => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const speedMps = position.coords.speed;
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        const speedMps = position.coords.speed;
 
-          if (speedMps !== null) {
-            const speedKmph = speedMps * 3.6;
-            speedReadings.push(speedKmph);
+        if (speedMps !== null) {
+          const speedKmph = speedMps * 3.6;
+          speedReadings.push(speedKmph);
+        }
+
+        if (Date.now() - startTime >= durationInSeconds * 1000) {
+          navigator.geolocation.clearWatch(watchId);
+
+          if (speedReadings.length === 0) {
+            reject("No valid speed readings available.");
+            return;
           }
-        },
-        (err) => {
-          clearInterval(intervalId);
-          reject("Error getting location: " + err.message);
-        },
-        {
-          enableHighAccuracy: true,
-          maximumAge: 0,
-          timeout: 5000,
+
+          const sum = speedReadings.reduce((acc, val) => acc + val, 0);
+          const average = (sum / speedReadings.length).toFixed(2);
+          resolve(average);
         }
-      );
-
-      elapsed += intervalMs;
-      if (elapsed >= durationInSeconds * 1000) {
-        clearInterval(intervalId);
-
-        if (speedReadings.length === 0) {
-          reject("No valid speed readings available.");
-          return;
-        }
-
-        const sum = speedReadings.reduce((acc, val) => acc + val, 0);
-        const average = (sum / speedReadings.length).toFixed(2);
-        resolve(average); // returns string like "23.78"
+      },
+      (err) => {
+        navigator.geolocation.clearWatch(watchId);
+        reject("Error getting location: " + err.message);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 5000,
       }
-    }, intervalMs);
+    );
   });
 };

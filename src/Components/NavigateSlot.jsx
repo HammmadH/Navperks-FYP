@@ -6,14 +6,15 @@ import RadialSeparators from "./RadialSeparators";
 import LiveSpeedometer from "./LiveSpeedometer";
 
 const zones = [
-  { id: 'S', label: "COCIS" },
-  { id: 'M', label: "COMS" },
+  { id: "S", label: "COCIS" },
+  { id: "M", label: "COMS" },
 ];
 
 const NavigateSlot = ({
   onSelect,
   bookedSlot,
   isParked,
+  releasing,
   speed,
   remainingTime,
   timerRunning,
@@ -21,8 +22,6 @@ const NavigateSlot = ({
 }) => {
   // To track if the timer is running
   const totalTime = 20; // Total time in seconds (2 minutes)
-
-
 
   const progressValue = (remainingTime / totalTime) * 100;
 
@@ -32,9 +31,11 @@ const NavigateSlot = ({
 
       <div className="flex justify-center flex-col my-4 items-center">
         <div className="flex justify-center items-center rounded-full w-60 h-full">
-                <div className="absolute top-44 right-6 px-6 py-3 text-lg dark:text-white rounded-full"><LiveSpeedometer /></div>
-        
-                  <CircularProgressbarWithChildren
+          <div className="absolute top-40 right-5 px-6 py-3 text-lg dark:text-white rounded-full">
+            <LiveSpeedometer />
+          </div>
+
+          <CircularProgressbarWithChildren
             value={progressValue}
             text={
               remainingTime > 0
@@ -69,7 +70,7 @@ const NavigateSlot = ({
                 height: `${8}%`,
               }}
             />
-            {isParked ? <img src={Car} width={80} /> : ""}
+            {isParked || releasing ? <img src={Car} width={80} /> : ""}
           </CircularProgressbarWithChildren>
         </div>
       </div>
@@ -90,6 +91,7 @@ const NavigateSlot = ({
           ""
         )}
         <Button
+          releasing={releasing}
           bookedSlot={bookedSlot}
           releaseSlot={releaseSlot}
           isParked={isParked}
@@ -103,6 +105,7 @@ const NavigateSlot = ({
 };
 
 const Button = ({
+  releasing,
   bookedSlot,
   isParked,
   onSelect,
@@ -110,7 +113,13 @@ const Button = ({
   remainingTime,
   releaseSlot,
 }) => {
-  if (!bookedSlot) {
+  if (releasing) {
+    return (
+      <button className="bg-[#2cc40d] w-40 rounded-xl text-white text-xl py-2 font-semibold cursor-pointer">
+        Releasing
+      </button>
+    );
+  } else if (!bookedSlot) {
     return (
       <button
         className="bg-[#2cc40d] w-40 rounded-xl text-white text-xl py-2 font-semibold cursor-pointer"
@@ -123,7 +132,12 @@ const Button = ({
     );
   } else if (bookedSlot && !isParked) {
     return (
-      <button className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer" onClick={()=>{onSelect('kiet')}}>
+      <button
+        className="bg-[#2cc40d] w-40 rounded-full text-white text-xl py-2 font-semibold cursor-pointer"
+        onClick={() => {
+          onSelect("kiet");
+        }}
+      >
         NAVIGATE SLOT
       </button>
     );
@@ -140,9 +154,7 @@ const Button = ({
         </button>
       );
     } else {
-      return (
-       <></>
-      );
+      return <></>;
     }
   }
 };

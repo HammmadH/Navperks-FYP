@@ -69,6 +69,7 @@ export const carNames = [
 ];
 
 export default function BookSlot({
+  releasing,
   onSelect,
   slots: mySlots,
   bookedSlot,
@@ -77,69 +78,86 @@ export default function BookSlot({
   const [selectedFloor, setSelectedFloor] = useState(0);
   const [animatingSlot, setAnimatingSlot] = useState(null);
 
-  const handleSlotClick = (slot) => {
-    if (bookedSlot != null) {
-      Swal.fire({
-        icon: "warning",
-        title: "Slot Already Booked",
-        text: "You have already booked a slot.",
-      });
-      return;
-    }
-
-    if (slot.reserved) {
-      Swal.fire({
-        icon: "error",
-        title: "Slot Already Reserved",
-        text: `Slot ${slot.code} is already reserved by another user.`,
-      });
-      return;
-    }
-
-    let mycarnames = {};
-    carNames.forEach((c, index) => {
-      mycarnames[index] = c.name + " " + "(" + c.type + ")";
+ const handleSlotClick = (slot) => {
+  if (bookedSlot != null) {
+    Swal.fire({
+      icon: "warning",
+      title: "Slot Already Booked",
+      text: "You have already booked a slot.",
     });
+    return;
+  }
 
-    const { value: fruit } = Swal.fire({
-      title: `Reserve Slot ${slot.code}?`,
-      html: `
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 10px;">
-            <div class="car-option" data-value="sedan" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
-              <img src=${car1} style="width: 100%; height: 90px;" />
-              <div style="margin-top: 8px; font-weight: 500;">Sedan</div>
-            </div>
-            <div class="car-option" data-value="suv" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
-              <img src=${car2} style="width: 100%; height: 90px;" />
-              <div style="margin-top: 8px; font-weight: 500;">Suv</div>
-            </div>
-            <div class="car-option" data-value="hatchback" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
-              <img src=${car3} style="width: 100%; height: 90px;" />
-              <div style="margin-top: 8px; font-weight: 500;">Hatchback</div>
-            </div>
-            <div class="car-option" data-value="pickup" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
-              <img src=${car4} style="width: 100%; height: 90px;" />
-              <div style="margin-top: 8px; font-weight: 500;">Pickup</div>
-            </div>
-          </div>
-        `,
-      inputPlaceholder: "Select your cartype",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Reserve it!",
-      didOpen: () => {
-        const options = Swal.getHtmlContainer().querySelectorAll(".car-option");
-        options.forEach((option) =>
-          option.addEventListener("click", () => {
-            const selectedType = option.getAttribute("data-value");
-            Swal.close();
-            confirmReservation(slot, selectedType);
-          })
-        );
-      },
+  if (releasing) {
+    Swal.fire({
+      icon: "warning",
+      title: "Releasing",
+      text: "Your slot is releasing.",
     });
-  };
+    return;
+  }
+
+  if (slot.reserved) {
+    Swal.fire({
+      icon: "error",
+      title: "Slot Already Reserved",
+      text: `Slot ${slot.code} is already reserved by another user.`,
+    });
+    return;
+  }
+
+  Swal.fire({
+    title: `Reserve Slot ${slot.code}?`,
+    html: `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 10px;">
+        <div class="car-option" data-value="sedan" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+          <img src=${car1} style="width: 100%; height: 90px;" />
+          <div style="margin-top: 8px; font-weight: 500;">Sedan</div>
+        </div>
+        <div class="car-option" data-value="suv" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+          <img src=${car2} style="width: 100%; height: 90px;" />
+          <div style="margin-top: 8px; font-weight: 500;">SUV</div>
+        </div>
+        <div class="car-option" data-value="hatchback" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+          <img src=${car3} style="width: 100%; height: 90px;" />
+          <div style="margin-top: 8px; font-weight: 500;">Hatchback</div>
+        </div>
+        <div class="car-option" data-value="pickup" style="text-align: center; border: 1px solid #ccc; padding: 10px; cursor: pointer; border-radius: 8px;">
+          <img src=${car4} style="width: 100%; height: 90px;" />
+          <div style="margin-top: 8px; font-weight: 500;">Pickup</div>
+        </div>
+      </div>
+    `,
+    showCancelButton: true,
+    cancelButtonColor: "#d33",
+    showConfirmButton: false,
+    didOpen: () => {
+      const options = Swal.getHtmlContainer().querySelectorAll(".car-option");
+      options.forEach((option) =>
+        option.addEventListener("click", () => {
+          const selectedType = option.getAttribute("data-value");
+          Swal.fire({
+            title: "Confirm",
+            icon: "info",
+            text: `Are you sure you want to reserve ${slot.code}?`,
+            showCancelButton: true,
+            showCloseButton: true,
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, reserve it!",
+            cancelButtonText: "No",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              confirmReservation(slot, selectedType);
+              Swal.close();
+            }
+          });
+          
+        })
+      );
+    },
+  });
+};
+
 
   const confirmReservation = (slot, carType) => {
     setAnimatingSlot(slot.id);

@@ -59,6 +59,7 @@ function App() {
   const [speed, setSpeed] = useState(0);
   const [showBottomBar, setShowBottomBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [releasing, setReleasing] = useState(false)
 
   const [bookedSlot, setBookedSlot] = useState(
     simpleDecrypt(localStorage.getItem(simpleEncrypt("bookedSlot"))) || null
@@ -357,7 +358,6 @@ function App() {
         setTimeout(() => {
           setIsParked(true);
         }, 10 * 1000);
-        alert("ok")
         const speed1 = await getAverageSpeed(3);
         setSpeed(speed1);
         const sResponse = await sendSpeed(speed1, data.reservationId);
@@ -405,6 +405,10 @@ function App() {
         }
       );
       if (response.ok) {
+        setReleasing(true)
+        setTimeout(()=>{
+          setReleasing(false)
+        },20 * 1000)
         startTimer();
         toast.success("Slot Released", {
           position: "top-right",
@@ -451,6 +455,7 @@ function App() {
           <>
             <GPSAccessPrompt show={locationAllowed} />
             <BookSlot
+            releasing={releasing}
               onSelect={handleSelectComponent}
               slots={slots}
               bookedSlot={bookedSlot}
@@ -464,6 +469,7 @@ function App() {
             <GPSAccessPrompt show={locationAllowed} />
             <NavigateSlot
               speed={speed}
+              releasing={releasing}
               onSelect={handleSelectComponent}
               releaseSlot={releaseSlot}
               bookedSlot={bookedSlot}
