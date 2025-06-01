@@ -69,7 +69,7 @@ export const sendSpeed = async (speed, reservationId) => {
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/Speed/${reservationId}`,
       {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -82,7 +82,7 @@ export const sendSpeed = async (speed, reservationId) => {
     }
 
     const result = await response.json();
-    console.log("Speed sent successfully:", result);
+    alert("Speed sent successfully:", result);
     return result;
   } catch (error) {
     console.error("Error sending speed:", error);
