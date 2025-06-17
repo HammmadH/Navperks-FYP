@@ -43,7 +43,7 @@ const IndoorMap = () => {
 
     const script = document.createElement("script");
     script.src =
-      "https://sdk.woosmap.com/map/map.js?libraries=widgets&key=woos-6c1856a5-9d6d-3056-92e2-2de010271a8b&callback=initMap";
+      "https://sdk.woosmap.com/map/map.js?libraries=widgets&key=woos-503717c5-4818-33ac-95c4-27b30944fe13&callback=initMap";
     script.async = true;
     script.defer = true;
     document.body.appendChild(script);
