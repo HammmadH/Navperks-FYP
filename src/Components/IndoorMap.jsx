@@ -10,7 +10,7 @@ const IndoorMap = () => {
 
         const myMap = new window.woosmap.map.Map(document.getElementById('map'), {
           gestureHandling: isMobile ? "cooperative" : "greedy",
-          Zoom: 20,
+          zoom: 20,
           center: {lat:24.92786605915773,lng:67.04737722873689} // Adjust gesture handling for mobile
         });
 
@@ -43,7 +43,7 @@ const IndoorMap = () => {
 
     const script = document.createElement("script");
     script.src =
-      "https://sdk.woosmap.com/map/map.js?libraries=widgets&key=woos-503717c5-4818-33ac-95c4-27b30944fe13&callback=initMap";
+      "https://sdk.woosmap.com/map/map.js?libraries=widgets&key=woos-f770d731-7109-3e13-9aef-14aaa3b22750&callback=initMap";
     script.async = true;
     script.defer = true;
     document.body.appendChild(script);
@@ -66,11 +66,6 @@ const IndoorMap = () => {
 };
 
 export default IndoorMap;
-
-
-
-
-
 
 
 
